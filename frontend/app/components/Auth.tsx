@@ -1,120 +1,196 @@
-"use client"
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { PlaneTakeoff, Mail, Lock, User } from 'lucide-react'
-import { FaGoogle as Google } from "react-icons/fa";
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "./ui/input";
 
+import { Label } from "./ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { PlaneTakeoff, Mail, Lock, User } from "lucide-react";
+import { BackgroundGradient } from "./ui/background-gradient";
+import {
+  IconBrandGithub,
+  IconBrandGoogle,
+  IconBrandOnlyfans,
+} from "@tabler/icons-react";
+import { cn } from "@/lib/utils";
 
 export function Auth() {
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
   async function onSubmit(event: React.SyntheticEvent) {
-    event.preventDefault()
-    setIsLoading(true)
+    event.preventDefault();
+    setIsLoading(true);
 
     setTimeout(() => {
-      setIsLoading(false)
-    }, 3000)
+      setIsLoading(false);
+    }, 3000);
   }
 
   return (
-    <div className="min-h-screen bg-sky-50 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-zinc-900 flex flex-col items-center justify-center p-8">
       <Link href="/" className="flex items-center justify-center mb-8">
         <PlaneTakeoff className="h-10 w-10 text-sky-500 mr-2" />
         <span className="text-2xl font-bold text-sky-700">SkyBooker</span>
       </Link>
-      
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Welcome to SkyBooker</CardTitle>
-          <CardDescription>Login or create an account to start booking your flights</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-            <TabsContent value="login">
-              <form onSubmit={onSubmit}>
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="m@example.com" required />
+      <BackgroundGradient>
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Welcome to SkyBooker</CardTitle>
+            <CardDescription>
+              Login or create an account to start booking your flights
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="login" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Login</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              </TabsList>
+              <TabsContent value="login">
+                <form onSubmit={onSubmit}>
+                  <div className="grid gap-4">
+                    <LabelInputContainer className="mb-4">
+                      <Label htmlFor="email">Email Address</Label>
+                      <Input
+                        id="email"
+                        placeholder="projectmayhem@fc.com"
+                        type="email"
+                      />
+                    </LabelInputContainer>
+                    <LabelInputContainer className="mb-4">
+                      <Label htmlFor="password">Password</Label>
+                      <Input
+                        id="password"
+                        placeholder="••••••••"
+                        type="password"
+                      />
+                    </LabelInputContainer>
+                    <Button disabled={isLoading}>
+                      {isLoading && (
+                        <Mail className="mr-2 h-4 w-4 animate-spin" />
+                      )}
+                      Login
+                    </Button>
                   </div>
-                  <div className="grid gap-2">
+                </form>
+              </TabsContent>
+              <TabsContent value="signup">
+                <form className="my-8">
+                  <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
+                    <LabelInputContainer>
+                      <Label htmlFor="firstname">First name</Label>
+                      <Input id="firstname" placeholder="Tyler" type="text" />
+                    </LabelInputContainer>
+                    <LabelInputContainer>
+                      <Label htmlFor="lastname">Last name</Label>
+                      <Input id="lastname" placeholder="Durden" type="text" />
+                    </LabelInputContainer>
+                  </div>
+                  <LabelInputContainer className="mb-4">
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input
+                      id="email"
+                      placeholder="projectmayhem@fc.com"
+                      type="email"
+                    />
+                  </LabelInputContainer>
+                  <LabelInputContainer className="mb-4">
                     <Label htmlFor="password">Password</Label>
-                    <Input id="password" type="password" required />
+                    <Input
+                      id="password"
+                      placeholder="••••••••"
+                      type="password"
+                    />
+                  </LabelInputContainer>
+
+                  <button
+                    className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+                    type="submit"
+                  >
+                    Sign up &rarr;
+                    <BottomGradient />
+                  </button>
+
+                  <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
+
+                  <div className="flex flex-col space-y-4">
+                    <button
+                      className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]"
+                      type="submit"
+                    >
+                      <IconBrandGithub className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
+                      <span className="text-neutral-700 dark:text-neutral-300 text-sm">
+                        GitHub
+                      </span>
+                      <BottomGradient />
+                    </button>
+                    <button
+                      className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]"
+                      type="submit"
+                    >
+                      <IconBrandGoogle className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
+                      <span className="text-neutral-700 dark:text-neutral-300 text-sm">
+                        Google
+                      </span>
+                      <BottomGradient />
+                    </button>
+                    <button
+                      className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]"
+                      type="submit"
+                    >
+                      <IconBrandOnlyfans className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
+                      <span className="text-neutral-700 dark:text-neutral-300 text-sm">
+                        OnlyFans
+                      </span>
+                      <BottomGradient />
+                    </button>
                   </div>
-                  <Button disabled={isLoading}>
-                    {isLoading && (
-                      <Mail className="mr-2 h-4 w-4 animate-spin" />
-                    )}
-                    Login
-                  </Button>
-                </div>
-              </form>
-            </TabsContent>
-            <TabsContent value="signup">
-              <form onSubmit={onSubmit}>
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="name">Full Name</Label>
-                    <Input id="name" type="text" placeholder="John Doe" required />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="m@example.com" required />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input id="password" type="password" required />
-                  </div>
-                  <Button disabled={isLoading}>
-                    {isLoading && (
-                      <User className="mr-2 h-4 w-4 animate-spin" />
-                    )}
-                    Sign Up
-                  </Button>
-                </div>
-              </form>
-            </TabsContent>
-          </Tabs>
-          <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
+                </form>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+          <CardFooter className="flex flex-wrap items-center justify-between gap-2">
+            <div className="text-sm text-muted-foreground">
+              <Link href="#" className="hover:underline underline-offset-4">
+                Forgot your password?
+              </Link>
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-muted-foreground">
-                Or continue with
-              </span>
-            </div>
-          </div>
-          <Button variant="outline" className="w-full" onClick={() => alert('Google login not implemented')}>
-            <Google className="mr-2 h-4 w-4" />
-            Login with Google
-          </Button>
-        </CardContent>
-        <CardFooter className="flex flex-wrap items-center justify-between gap-2">
-          <div className="text-sm text-muted-foreground">
-            <Link href="#" className="hover:underline underline-offset-4">
-              Forgot your password?
-            </Link>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            Need help?{" "}
-            <Link href="#" className="hover:underline underline-offset-4">
-              Contact support
-            </Link>
-          </div>
-        </CardFooter>
-      </Card>
+          </CardFooter>
+        </Card>
+      </BackgroundGradient>
     </div>
-  )
+  );
 }
+
+const BottomGradient = () => {
+  return (
+    <>
+      <span className="group-hover/btn:opacity-100 block transition duration-500 opacity-0 absolute h-px w-full -bottom-px inset-x-0 bg-gradient-to-r from-transparent via-cyan-500 to-transparent" />
+      <span className="group-hover/btn:opacity-100 blur-sm block transition duration-500 opacity-0 absolute h-px w-1/2 mx-auto -bottom-px inset-x-10 bg-gradient-to-r from-transparent via-indigo-500 to-transparent" />
+    </>
+  );
+};
+
+const LabelInputContainer = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
+  return (
+    <div className={cn("flex flex-col space-y-2 w-full", className)}>
+      {children}
+    </div>
+  );
+};

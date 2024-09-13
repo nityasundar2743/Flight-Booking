@@ -69,7 +69,7 @@ export function SeatSelect({ flightId }: SeatBookingProps) {
   }
 
   return (
-    <div className="min-h-screen bg-sky-50 p-4">
+    <div className="min-h-screen bg-zinc-900 p-4">
       <header className="flex justify-center items-center mb-6">
         <PlaneTakeoff className="h-8 w-8 text-sky-500 mr-2" />
         <span className="text-2xl font-bold text-sky-700">SkyBooker</span>

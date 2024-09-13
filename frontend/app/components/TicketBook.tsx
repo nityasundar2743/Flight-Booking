@@ -16,6 +16,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { PlaneTakeoff, ArrowRight } from 'lucide-react'
+import { BackgroundGradient } from './ui/background-gradient'
 
 type TicketBookingProps = {
   ticketId: string
@@ -89,12 +90,11 @@ export function TicketBook({ ticketId }: TicketBookingProps) {
   }
 
   return (
-    <div className="min-h-screen bg-sky-50 p-4">
+    <div className="min-h-screen bg-zinc-900 p-4">
       <header className="flex justify-center items-center mb-6">
         <PlaneTakeoff className="h-8 w-8 text-sky-500 mr-2" />
         <span className="text-2xl font-bold text-sky-700">SkyBooker</span>
       </header>
-
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle className="text-center">
