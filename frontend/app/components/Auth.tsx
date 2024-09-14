@@ -23,18 +23,43 @@ import {
   IconBrandOnlyfans,
 } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
+import { ChangeEvent, FormEvent } from 'react';
 
 export function Auth() {
   const [isLoading, setIsLoading] = useState(false);
 
-  async function onSubmit(event: React.SyntheticEvent) {
-    event.preventDefault();
-    setIsLoading(true);
+  // State for login form
+  const [loginEmail, setLoginEmail] = useState<string>('');
+  const [loginPassword, setLoginPassword] = useState<string>('');
 
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
-  }
+  // State for signup form
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
+  const [signupEmail, setSignupEmail] = useState<string>('');
+  const [signupPassword, setSignupPassword] = useState<string>('');
+
+  // Submit handler types
+  const handleLoginSubmit = (e: FormEvent<HTMLFormElement>): void => {
+    e.preventDefault();
+    console.log('Login Email:', loginEmail);
+    console.log('Login Password:', loginPassword);
+  };
+
+  const handleSignupSubmit = (e: FormEvent<HTMLFormElement>): void => {
+    e.preventDefault();
+    console.log('First Name:', firstName);
+    console.log('Last Name:', lastName);
+    console.log('Signup Email:', signupEmail);
+    console.log('Signup Password:', signupPassword);
+  };
+
+  // Change handler types
+  const handleInputChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    setState: React.Dispatch<React.SetStateAction<string>>
+  ): void => {
+    setState(e.target.value);
+  };
 
   return (
     <div className="min-h-screen bg-zinc-900 flex flex-col items-center justify-center p-8">
@@ -56,84 +81,40 @@ export function Auth() {
                 <TabsTrigger value="login">Login</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
+
+              {/* Login Form */}
               <TabsContent value="login">
-                <form onSubmit={onSubmit}>
+                <form onSubmit={handleLoginSubmit}>
                   <div className="grid gap-4">
-                    <LabelInputContainer className="mb-4">
-                      <Label htmlFor="email">Email Address</Label>
+                    <div className="grid gap-2">
+                      <Label htmlFor="loginEmail">Email</Label>
                       <Input
-                        id="email"
-                        placeholder="projectmayhem@fc.com"
+                        id="loginEmail"
                         type="email"
+                        placeholder="m@example.com"
+                        value={loginEmail}
+                        onChange={(e) => setLoginEmail(e.target.value)}
+                        required
                       />
-                    </LabelInputContainer>
-                    <LabelInputContainer className="mb-4">
-                      <Label htmlFor="password">Password</Label>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="loginPassword">Password</Label>
                       <Input
-                        id="password"
-                        placeholder="••••••••"
+                        id="loginPassword"
                         type="password"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        required
                       />
-                    </LabelInputContainer>
-                    <Button disabled={isLoading}>
-                      {isLoading && (
-                        <Mail className="mr-2 h-4 w-4 animate-spin" />
-                      )}
+                    </div>
+                    <Button type="submit">
                       Login
                     </Button>
                   </div>
-                </form>
-              </TabsContent>
-              <TabsContent value="signup">
-                <form className="my-8">
-                  <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
-                    <LabelInputContainer>
-                      <Label htmlFor="firstname">First name</Label>
-                      <Input id="firstname" placeholder="Tyler" type="text" />
-                    </LabelInputContainer>
-                    <LabelInputContainer>
-                      <Label htmlFor="lastname">Last name</Label>
-                      <Input id="lastname" placeholder="Durden" type="text" />
-                    </LabelInputContainer>
-                  </div>
-                  <LabelInputContainer className="mb-4">
-                    <Label htmlFor="email">Email Address</Label>
-                    <Input
-                      id="email"
-                      placeholder="projectmayhem@fc.com"
-                      type="email"
-                    />
-                  </LabelInputContainer>
-                  <LabelInputContainer className="mb-4">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      placeholder="••••••••"
-                      type="password"
-                    />
-                  </LabelInputContainer>
-
-                  <button
-                    className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
-                    type="submit"
-                  >
-                    Sign up &rarr;
-                    <BottomGradient />
-                  </button>
-
                   <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
 
                   <div className="flex flex-col space-y-4">
-                    <button
-                      className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]"
-                      type="submit"
-                    >
-                      <IconBrandGithub className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
-                      <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-                        GitHub
-                      </span>
-                      <BottomGradient />
-                    </button>
+                    
                     <button
                       className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]"
                       type="submit"
@@ -144,13 +125,71 @@ export function Auth() {
                       </span>
                       <BottomGradient />
                     </button>
+                  </div>
+                </form>
+              </TabsContent>
+
+              {/* Signup Form */}
+              <TabsContent value="signup">
+                <form onSubmit={handleSignupSubmit}>
+                  <div className="grid gap-4">
+                    <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
+                      <LabelInputContainer>
+                        <Label htmlFor="firstName">First name</Label>
+                        <Input
+                          id="firstName"
+                          type="text"
+                          placeholder="Tyler"
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                        />
+                      </LabelInputContainer>
+                      <LabelInputContainer>
+                        <Label htmlFor="lastName">Last name</Label>
+                        <Input
+                          id="lastName"
+                          type="text"
+                          placeholder="Durden"
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
+                        />
+                      </LabelInputContainer>
+                    </div>
+                    <LabelInputContainer className="mb-4">
+                      <Label htmlFor="signupEmail">Email Address</Label>
+                      <Input
+                        id="signupEmail"
+                        placeholder="projectmayhem@fc.com"
+                        type="email"
+                        value={signupEmail}
+                        onChange={(e) => setSignupEmail(e.target.value)}
+                      />
+                    </LabelInputContainer>
+                    <LabelInputContainer className="mb-4">
+                      <Label htmlFor="signupPassword">Password</Label>
+                      <Input
+                        id="signupPassword"
+                        placeholder="••••••••"
+                        type="password"
+                        value={signupPassword}
+                        onChange={(e) => setSignupPassword(e.target.value)}
+                      />
+                    </LabelInputContainer>
+
+                    <Button type="submit">
+                      Sign up &rarr;
+                    </Button>
+                  </div>
+                  <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
+
+                  <div className="flex flex-col space-y-4">
                     <button
                       className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]"
                       type="submit"
                     >
-                      <IconBrandOnlyfans className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
+                      <IconBrandGoogle className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
                       <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-                        OnlyFans
+                        Google
                       </span>
                       <BottomGradient />
                     </button>
@@ -159,13 +198,6 @@ export function Auth() {
               </TabsContent>
             </Tabs>
           </CardContent>
-          <CardFooter className="flex flex-wrap items-center justify-between gap-2">
-            <div className="text-sm text-muted-foreground">
-              <Link href="#" className="hover:underline underline-offset-4">
-                Forgot your password?
-              </Link>
-            </div>
-          </CardFooter>
         </Card>
       </BackgroundGradient>
     </div>

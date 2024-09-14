@@ -35,8 +35,8 @@ export const HoverEffect = ({
     >
       {flight.map((flight, idx) => (
         <Link
-          href={"#"}
-          key={flight?.id}
+        href={`/book/${flight.id}`} // Dynamic route with flight ID
+        key={flight?.id}
           className="relative group  block p-2 h-full w-full"
           onMouseEnter={() => setHoveredIndex(idx)}
           onMouseLeave={() => setHoveredIndex(null)}
@@ -60,22 +60,22 @@ export const HoverEffect = ({
           </AnimatePresence>
           <Card
   key={flight.id}
-  className="border border-white hover:border-pink-500 transform transition-transform duration-300 hover:scale-105 hover:shadow-xl"
+  className="bg-black border border-white hover:border-pink-500 transform transition-transform duration-300 hover:scale-105 hover:shadow-3xl"
 >
   <CardHeader>
     <CardTitle className="text-2xl">{flight.company}</CardTitle>
   </CardHeader>
   <CardContent>
     <div className="grid gap-2">
-      <div className="flex justify-between text-lg text-gray-500">
+      <div className="flex justify-between text-lg text-gray-100">
         <span className="font-semibold text-lg">{flight.source}</span>
         <span className="font-semibold text-lg">{flight.destination}</span>
       </div>
-      <div className="flex justify-between text-sm text-gray-500">
+      <div className="flex justify-between text-sm text-white">
         <span>{flight.departureTime}</span>
         <span>{flight.arrivalTime}</span>
       </div>
-      <div className="text-sm text-gray-500">Duration: {flight.duration}</div>
+      <div className="text-sm text-white">Duration: {flight.duration}</div>
       <div className="text-lg font-bold text-green-600">${flight.cost}</div>
       <Button className="w-full mt-2">Book Now</Button>
     </div>

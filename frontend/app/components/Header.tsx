@@ -11,7 +11,7 @@ export default function Header() {
         <span className="text-xl font-bold">SkyBooker</span>
       </Link>
       <nav className="ml-auto flex items-center gap-4 sm:gap-6">
-        <Link className="text-sm font-medium hover:underline underline-offset-4" href="#">
+        <Link className="text-sm font-medium hover:underline underline-offset-4" href="/ticket">
           Upcoming Journey
         </Link>
         <Link className="text-sm font-medium hover:underline underline-offset-4" href="#">

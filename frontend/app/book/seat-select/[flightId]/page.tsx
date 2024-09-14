@@ -1,9 +1,9 @@
 import {SeatSelect} from "../../../components/SeatSelect";
 
-export default function () {
+export default function ({ params }: { params: { flightId: string } }) {
     return (
         <div>
-            <SeatSelect flightId="111"/>
+            <SeatSelect flightId={params.flightId}/>
         </div>
     )
 }

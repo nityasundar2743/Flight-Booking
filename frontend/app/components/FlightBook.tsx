@@ -17,10 +17,12 @@ import {
 } from "@/components/ui/dialog"
 import { PlaneTakeoff, ArrowRight } from 'lucide-react'
 import { BackgroundGradient } from './ui/background-gradient'
+import { useRouter } from 'next/navigation'
 
-type TicketBookingProps = {
-  ticketId: string
+interface FlightBookProps {
+  flightId: string;
 }
+
 
 type FlightDetails = {
   source: string
@@ -33,11 +35,13 @@ type Passenger = {
   phone: string
 }
 
-export function TicketBook({ ticketId }: TicketBookingProps) {
+export function FlightBook({ flightId }: FlightBookProps) {
   const [flightDetails, setFlightDetails] = useState<FlightDetails | null>(null)
   const [passengerCount, setPassengerCount] = useState(1)
   const [passengers, setPassengers] = useState<Passenger[]>([{ name: '', email: '', phone: '' }])
   const [isLoading, setIsLoading] = useState(true)
+
+  const router = useRouter();
 
   useEffect(() => {
     // Simulating API call to fetch flight details
@@ -53,7 +57,7 @@ export function TicketBook({ ticketId }: TicketBookingProps) {
     }
 
     fetchFlightDetails()
-  }, [ticketId])
+  }, [flightId])
 
   const handlePassengerCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const count = parseInt(e.target.value)
@@ -82,7 +86,7 @@ export function TicketBook({ ticketId }: TicketBookingProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     // Here you would typically send the booking data to your backend
-    console.log('Booking submitted:', { ticketId, passengers })
+    console.log('Booking submitted:', { flightId, passengers })
   }
 
   if (isLoading) {
@@ -169,12 +173,12 @@ export function TicketBook({ ticketId }: TicketBookingProps) {
                 <DialogHeader>
                   <DialogTitle>Confirm Payment</DialogTitle>
                   <DialogDescription>
-                    Are you sure you want to proceed? This will redirect you to the Razorpay payment interface.
+                    Are you sure you want to proceed? This will redirect you to the Seat selection page
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                  <Button onClick={() => alert('Redirecting to Razorpay...')}>
-                    Proceed to Payment
+                  <Button onClick={() => router.push(`/book/seat-select/${flightId}`)}>
+                    Proceed
                   </Button>
                 </DialogFooter>
               </DialogContent>
