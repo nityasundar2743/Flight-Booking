@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlaneTakeoff, Clock, Users, Calendar } from 'lucide-react'
+import { BackgroundBeamsWithCollision } from './ui/background-beams-with-collision'
 
 type TicketInfo = {
   confirmationId: string
@@ -51,11 +52,7 @@ export function ViewTicket() {
   }
 
   return (
-    <div className="min-h-screen bg-sky-50 p-4 flex flex-col items-center">
-      <header className="flex items-center mb-6">
-        <PlaneTakeoff className="h-8 w-8 text-sky-500 mr-2" />
-        <span className="text-2xl font-bold text-sky-700">SkyBooker</span>
-      </header>
+    <BackgroundBeamsWithCollision className="min-h-screen bg-zinc-900 p-4 flex flex-col items-center">
 
       {!ticketInfo && (
         <Card className="w-full max-w-md">
@@ -149,6 +146,7 @@ export function ViewTicket() {
           </Card>
         </motion.div>
       )}
-    </div>
+    {/* </div> */}
+    </BackgroundBeamsWithCollision>
   )
 }
