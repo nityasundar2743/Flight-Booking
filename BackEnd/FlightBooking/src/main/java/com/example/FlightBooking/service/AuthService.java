@@ -4,6 +4,7 @@ import com.example.FlightBooking.entity.User;
 import com.example.FlightBooking.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,8 +14,13 @@ public class AuthService {
 
 	@Autowired
     private UserRepository userRepository;
-	@Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+
+    private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public AuthService(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
 
     // Register a new user
@@ -27,13 +33,15 @@ public class AuthService {
         return userRepository.save(user);
     }
 
-    // Authenticate a user
-    public boolean authenticateUser(String email, String password) {
+    // Authenticate a user and return the User object if successful
+    public User authenticateUser(String email, String password) {
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            return passwordEncoder.matches(password, user.getPassword());
+            if (passwordEncoder.matches(password, user.getPassword())) {
+                return user;  // Return the authenticated user
+            }
         }
-        return false;
+        return null;  // Return null if authentication fails
     }
 }

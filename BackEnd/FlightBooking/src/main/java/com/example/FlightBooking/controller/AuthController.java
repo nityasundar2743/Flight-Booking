@@ -2,6 +2,9 @@ package com.example.FlightBooking.controller;
 
 import com.example.FlightBooking.entity.User;
 import com.example.FlightBooking.service.AuthService;
+
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +33,14 @@ public class AuthController {
     // Endpoint for user authentication
     @PostMapping("/login")
     public ResponseEntity<String> authenticateUser(@RequestParam String email, 
-                                                   @RequestParam String password) {
-        boolean isAuthenticated = authService.authenticateUser(email, password);
-        if (isAuthenticated) {
+                                                   @RequestParam String password, 
+                                                   HttpSession session) {
+        // Attempt to authenticate the user
+        User authenticatedUser = authService.authenticateUser(email, password);
+        
+        if (authenticatedUser != null) {
+            // Store the authenticated user in the session
+            session.setAttribute("loggedInUser", authenticatedUser);
             return new ResponseEntity<>("User authenticated successfully.", HttpStatus.OK);
         } else {
             return new ResponseEntity<>("Invalid email or password.", HttpStatus.UNAUTHORIZED);

@@ -33,24 +33,20 @@ public class Flight {
     @Column(name = "duration", nullable = false)
     private String duration;
 
-    @Column(name = "premium_price")
-    private int premiumPrice;
-
-    @Column(name = "economy_price")
-    private int economyPrice;
+    @Column(name = "cost")
+    private int cost;
 
     // Constructors
     public Flight() {}
 
-    public Flight(String airline, String source, String destination, String departure, String arrival, String duration, int premiumPrice, int economyPrice) {
+    public Flight(String airline, String source, String destination, String departure, String arrival, String duration, int cost) {
         this.airline = airline;
         this.source = source;
         this.destination = destination;
         this.departure = departure;
         this.arrival = arrival;
         this.duration = duration;
-        this.premiumPrice = premiumPrice;
-        this.economyPrice = economyPrice;
+        this.cost = cost;
     }
 
     // Getters and setters
@@ -110,19 +106,12 @@ public class Flight {
         this.duration = duration;
     }
 
-    public int getPremiumPrice() {
-        return premiumPrice;
+    public int getCost() {
+        return cost;
     }
 
-    public void setPremiumPrice(int premiumPrice) {
-        this.premiumPrice = premiumPrice;
+    public void setCost(int cost) {
+        this.cost = cost;
     }
 
-    public int getEconomyPrice() {
-        return economyPrice;
-    }
-
-    public void setEconomyPrice(int economyPrice) {
-        this.economyPrice = economyPrice;
-    }
 }

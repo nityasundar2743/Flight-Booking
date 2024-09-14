@@ -18,7 +18,7 @@ public class FlightController {
     private FlightService flightService;
 
     // Endpoint to create or update a flight
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<String> saveFlight(@RequestBody Flight flight) {
         flightService.saveFlight(flight);
         return new ResponseEntity<>("Flight saved successfully.", HttpStatus.CREATED);
@@ -36,14 +36,24 @@ public class FlightController {
     }
 
     // Endpoint to retrieve all flights
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<Flight>> getAllFlights() {
         List<Flight> flights = flightService.getAllFlights();
         return new ResponseEntity<>(flights, HttpStatus.OK);
     }
+    
+    @GetMapping("/get")
+    public ResponseEntity<List<Flight>> getFlights(@RequestParam String source, 
+    											   @RequestParam String destination){
+    	List<Flight> flights = flightService.getFlights(source, destination);
+    	if(flights.isEmpty())
+    		return new ResponseEntity<>(flights, HttpStatus.NO_CONTENT);
+    	
+        return new ResponseEntity<>(flights, HttpStatus.OK);
+    }
 
     // Endpoint to delete a flight by ID
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteFlight(@PathVariable Long id) {
         if (flightService.getFlightById(id).isPresent()) {
             flightService.deleteFlight(id);
