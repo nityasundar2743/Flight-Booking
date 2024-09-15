@@ -104,52 +104,31 @@ export function Checkout() {
   const [isSearched, setIsSearched] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchFlights = async () => {
-      // Simulating API call
-      setLoading(true);
-      setTimeout(() => {
-        setFlights(initialFlights);
-        setLoading(false);
-      }, 1000);
-    };
 
-    fetchFlights();
-
-    const intervalId = setInterval(() => {
-      fetchFlights();
-    }, 5000000); // Poll every 5000 seconds
-
-    return () => clearInterval(intervalId);
-  }, []);
-
-  const searchFlights = () => {
+  const searchFlights = async () => {
+    const url = `http://localhost:8080/flights/get?source=${source}&destination=${destination}`;
     setLoading(true);
-    // Simulating API call
-    setTimeout(() => {
-      const filteredFlights = initialFlights;
-      setFlights(filteredFlights);
-      setIsSearched(true);
-      setLoading(false);
-    }, 1500);
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch flights.");
+      }
+  
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+    finally {
+      setLoading(false)
+    }
   };
 
   const applyFilters = () => {
     let filteredFlights = initialFlights;
-
-    if (filterSource) {
-      filteredFlights = filteredFlights.filter((flight) =>
-        flight.source.toLowerCase().includes(filterSource.toLowerCase())
-      );
-    }
-
-    if (filterDestination) {
-      filteredFlights = filteredFlights.filter((flight) =>
-        flight.destination
-          .toLowerCase()
-          .includes(filterDestination.toLowerCase())
-      );
-    }
 
     if (sortBy === "cost") {
       filteredFlights.sort((a, b) => a.cost - b.cost);

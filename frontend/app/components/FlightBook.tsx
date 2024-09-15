@@ -43,20 +43,67 @@ export function FlightBook({ flightId }: FlightBookProps) {
 
   const router = useRouter();
 
+  const bookTicketHandler = async () => {
+    setIsLoading(true);
+    const url = 'http://localhost:8080/ticket/save';
+    const body = JSON.stringify({
+      flightId: flightId,
+      passengers: passengers,
+    });
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: body,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save the ticket');
+      }
+      console.log(response)
+
+      // After the ticket is successfully saved, navigate to seat selection
+      router.push(`/book/seat-select/${flightId}`);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   useEffect(() => {
     // Simulating API call to fetch flight details
-    const fetchFlightDetails = async () => {
-      setIsLoading(true)
-      // In a real application, you would fetch the data from your backend
-      await new Promise(resolve => setTimeout(resolve, 1000)) // Simulating network delay
-      setFlightDetails({
-        source: 'New York',
-        destination: 'London'
-      })
-      setIsLoading(false)
-    }
+    const fetchFlightDetails = async (flightId:string) => {
+      setIsLoading(true);
+      
+      try {
+        const url = `http://localhost:8080/flights/${flightId}`;
+        
+        const response = await fetch(url, {
+          method: "GET",
+        });
+    
+        if (!response.ok) {
+          throw new Error("Failed to fetch flight details.");
+        }
+    
+        const data = await response.json();
+        setFlightDetails({
+          source: data.source,
+          destination: data.destination,
+        });
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
 
-    fetchFlightDetails()
+    fetchFlightDetails(flightId)
   }, [flightId])
 
   const handlePassengerCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -177,7 +224,7 @@ export function FlightBook({ flightId }: FlightBookProps) {
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                  <Button onClick={() => router.push(`/book/seat-select/${flightId}`)}>
+                  <Button onClick={bookTicketHandler}>
                     Proceed
                   </Button>
                 </DialogFooter>

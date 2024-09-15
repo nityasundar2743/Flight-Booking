@@ -30,26 +30,40 @@ export function ViewTicket() {
   const [isLoading, setIsLoading] = useState(false)
 
   const fetchTicketInfo = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    // Simulating API call to fetch ticket info
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    // Sample ticket info
-    setTicketInfo({
-      confirmationId: confirmationId,
-      source: 'New York (JFK)',
-      destination: 'London (LHR)',
-      departureTime: '2023-07-15 10:00 AM',
-      arrivalTime: '2023-07-15 10:00 PM',
-      duration: '7h 00m',
-      companyName: 'SkyHigh Airlines',
-      passengers: [
-        { name: 'John Doe', email: 'john@example.com', phone: '+1 234-567-8900' },
-        { name: 'Jane Doe', email: 'jane@example.com', phone: '+1 234-567-8901' }
-      ]
-    })
-    setIsLoading(false)
-  }
+    e.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      const url = `http://localhost:8080/ticket?confirmationID=${confirmationId}`;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to fetch ticket info');
+      }
+  
+      const data = await response.json();
+      console.log(data)
+  
+      // Set the fetched ticket info in the state
+      setTicketInfo({
+        confirmationId: data.confirmationId,
+        source: data.source,
+        destination: data.destination,
+        departureTime: data.departureTime,
+        arrivalTime: data.arrivalTime,
+        duration: data.duration,
+        companyName: data.companyName,
+        passengers: data.passengers,
+      });
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <BackgroundBeamsWithCollision className="min-h-screen bg-zinc-900 p-4 flex flex-col items-center">

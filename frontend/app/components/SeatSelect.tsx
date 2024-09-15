@@ -26,6 +26,8 @@ export function SeatSelect({ flightId }: SeatBookingProps) {
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
   const [totalCost, setTotalCost] = useState(0);
 
+  
+
   useEffect(() => {
     // Simulating API call to fetch ticket details and seat availability
     const fetchFlightDetails = async () => {
