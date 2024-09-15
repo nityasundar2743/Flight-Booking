@@ -5,6 +5,8 @@ import com.example.FlightBooking.service.AuthService;
 
 import jakarta.servlet.http.HttpSession;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +21,11 @@ public class AuthController {
 
     // Endpoint for user registration
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestParam String name, 
-                                               @RequestParam String email, 
-                                               @RequestParam String password) {
+    public ResponseEntity<String> registerUser(@RequestBody Map<String, Object> requestBody) {
         try {
+        	String name = (String)requestBody.get("name");
+        	String email = (String)requestBody.get("email");
+        	String password = (String)requestBody.get("password");
             User user = authService.registerUser(name, email, password);
             return new ResponseEntity<>("User registered successfully.", HttpStatus.CREATED);
         } catch (RuntimeException e) {
@@ -32,10 +35,11 @@ public class AuthController {
 
     // Endpoint for user authentication
     @PostMapping("/login")
-    public ResponseEntity<String> authenticateUser(@RequestParam String email, 
-                                                   @RequestParam String password, 
+    public ResponseEntity<String> authenticateUser(@RequestBody Map<String, Object> requestBody, 
                                                    HttpSession session) {
         // Attempt to authenticate the user
+    	String email = (String)requestBody.get("email");
+    	String password = (String)requestBody.get("password");
         User authenticatedUser = authService.authenticateUser(email, password);
         
         if (authenticatedUser != null) {
