@@ -3,6 +3,7 @@ package com.example.FlightBooking.controller;
 import com.example.FlightBooking.entity.User;
 import com.example.FlightBooking.service.AuthService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 import java.util.Map;
@@ -22,11 +23,11 @@ public class AuthController {
 
     // Endpoint for user registration
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<String> registerUser(@RequestBody Map<String, Object> requestBody, HttpServletRequest request) {
         try {
-        	String name = (String)requestBody.get("name");
-        	String email = (String)requestBody.get("email");
-        	String password = (String)requestBody.get("password");
+            String name = (String) requestBody.get("name");
+            String email = (String) requestBody.get("email");
+            String password = (String) requestBody.get("password");
             User user = authService.registerUser(name, email, password);
             return new ResponseEntity<>("User registered successfully.", HttpStatus.CREATED);
         } catch (RuntimeException e) {
@@ -39,8 +40,8 @@ public class AuthController {
     public ResponseEntity<String> authenticateUser(@RequestBody Map<String, Object> requestBody, 
                                                    HttpSession session) {
         // Attempt to authenticate the user
-    	String email = (String)requestBody.get("email");
-    	String password = (String)requestBody.get("password");
+        String email = (String) requestBody.get("email");
+        String password = (String) requestBody.get("password");
         User authenticatedUser = authService.authenticateUser(email, password);
         
         if (authenticatedUser != null) {

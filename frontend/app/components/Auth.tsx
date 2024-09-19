@@ -59,6 +59,7 @@ export function Auth() {
       // Send the POST request to the server
       const response = await fetch('http://localhost:8080/auth/register', {
         method: 'POST',
+        credentials: "include",
         headers: {
           'Content-Type': 'application/json',
         },
@@ -93,6 +94,7 @@ export function Auth() {
       // Send the POST request to the server
       const response = await fetch('http://localhost:8080/auth/login', {
         method: 'POST',
+        credentials: "include",
         headers: {
           'Content-Type': 'application/json',
         },

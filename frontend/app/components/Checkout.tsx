@@ -111,6 +111,7 @@ export function Checkout() {
     try {
       const response = await fetch(url, {
         method: "GET",
+        credentials: "include",
       });
   
       if (!response.ok) {

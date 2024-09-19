@@ -1,13 +1,19 @@
 package com.example.FlightBooking.entity;
 
+import java.io.Serializable;
 import java.util.List;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "user")
-public class User {
+public class User implements Serializable{
     
-    @Id
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id; // Primary key for User entity
 
