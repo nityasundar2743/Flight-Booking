@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RequestMapping("/ticket")
 public class TicketController {
 
