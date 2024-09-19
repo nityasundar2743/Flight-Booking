@@ -25,6 +25,7 @@ export function Landing() {
     const router = useRouter();
 
     const searchHandler = () => {
+      console.log("Go to checkout page")
         router.push(`/checkout`);
     };
       

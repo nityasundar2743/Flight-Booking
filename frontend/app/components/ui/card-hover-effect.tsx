@@ -14,11 +14,11 @@ export const HoverEffect = ({
     // description: string;
     // link: string;
     id: string;
-    company: string;
+    airline: string;
     source: string;
     destination: string;
-    departureTime: string;
-    arrivalTime: string;
+    departure: string;
+    arrival: string;
     duration: string;
     cost: number;
   }[];
@@ -63,7 +63,7 @@ export const HoverEffect = ({
   className="bg-black border border-white hover:border-pink-500 transform transition-transform duration-300 hover:scale-105 hover:shadow-3xl"
 >
   <CardHeader>
-    <CardTitle className="text-2xl">{flight.company}</CardTitle>
+    <CardTitle className="text-2xl">{flight.airline}</CardTitle>
   </CardHeader>
   <CardContent>
     <div className="grid gap-2">
@@ -72,8 +72,8 @@ export const HoverEffect = ({
         <span className="font-semibold text-lg">{flight.destination}</span>
       </div>
       <div className="flex justify-between text-sm text-white">
-        <span>{flight.departureTime}</span>
-        <span>{flight.arrivalTime}</span>
+        <span>{flight.departure}</span>
+        <span>{flight.arrival}</span>
       </div>
       <div className="text-sm text-white">Duration: {flight.duration}</div>
       <div className="text-lg font-bold text-green-600">${flight.cost}</div>

@@ -32,11 +32,11 @@ import { BackgroundGradient } from "./ui/background-gradient";
 
 type Flight = {
   id: string;
-  company: string;
+  airline: string;
   source: string;
   destination: string;
-  departureTime: string;
-  arrivalTime: string;
+  departure: string;
+  arrival: string;
   duration: string;
   cost: number;
 };
@@ -45,51 +45,51 @@ export function Checkout() {
   const initialFlights: Flight[] = [
     {
       id: "1",
-      company: "SkyHigh Airlines",
+      airline: "SkyHigh Airlines",
       source: "New York",
       destination: "London",
-      departureTime: "2023-07-01 10:00 AM",
-      arrivalTime: "2023-07-01 10:00 PM",
+      departure: "2023-07-01 10:00 AM",
+      arrival: "2023-07-01 10:00 PM",
       duration: "7h 00m",
       cost: 500,
     },
     {
       id: "2",
-      company: "Ocean Air",
+      airline: "Ocean Air",
       source: "Los Angeles",
       destination: "Tokyo",
-      departureTime: "2023-07-02 11:30 AM",
-      arrivalTime: "2023-07-03 3:30 PM",
+      departure: "2023-07-02 11:30 AM",
+      arrival: "2023-07-03 3:30 PM",
       duration: "11h 00m",
       cost: 800,
     },
     {
       id: "3",
-      company: "Mountain Express",
+      airline: "Mountain Express",
       source: "Chicago",
       destination: "Paris",
-      departureTime: "2023-07-03 9:15 AM",
-      arrivalTime: "2023-07-03 11:45 PM",
+      departure: "2023-07-03 9:15 AM",
+      arrival: "2023-07-03 11:45 PM",
       duration: "8h 30m",
       cost: 650,
     },
     {
       id: "4",
-      company: "Desert Jet",
+      airline: "Desert Jet",
       source: "Dubai",
       destination: "Singapore",
-      departureTime: "2023-07-04 2:00 PM",
-      arrivalTime: "2023-07-05 1:30 AM",
+      departure: "2023-07-04 2:00 PM",
+      arrival: "2023-07-05 1:30 AM",
       duration: "7h 30m",
       cost: 550,
     },
     {
       id: "5",
-      company: "Arctic Airways",
+      airline: "Arctic Airways",
       source: "Moscow",
       destination: "Beijing",
-      departureTime: "2023-07-05 6:45 AM",
-      arrivalTime: "2023-07-05 7:15 PM",
+      departure: "2023-07-05 6:45 AM",
+      arrival: "2023-07-05 7:15 PM",
       duration: "6h 30m",
       cost: 450,
     },
@@ -118,7 +118,8 @@ export function Checkout() {
       }
   
       const data = await response.json();
-      console.log(data);
+      console.log("data from server ",data);
+      setFlights(data);
     } catch (error) {
       console.error("Error:", error);
     }
@@ -134,7 +135,7 @@ export function Checkout() {
       filteredFlights.sort((a, b) => a.cost - b.cost);
     } else if (sortBy === "departure") {
       filteredFlights.sort((a, b) =>
-        a.departureTime.localeCompare(b.departureTime)
+        a.departure.localeCompare(b.departure)
       );
     }
 

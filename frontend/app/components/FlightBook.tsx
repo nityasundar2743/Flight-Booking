@@ -218,7 +218,7 @@ export function FlightBook({ flightId }: FlightBookProps) {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Confirm Payment</DialogTitle>
+                  <DialogTitle>Confirm Booking</DialogTitle>
                   <DialogDescription>
                     Are you sure you want to proceed? This will redirect you to the Seat selection page
                   </DialogDescription>

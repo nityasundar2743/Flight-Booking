@@ -25,9 +25,9 @@ export function Auth() {
   const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false)
 
   const [signupForm, setSignupForm] = useState({
+    name: "",
     email: "",
     password: "",
-    confirmPassword: "",
   })
 
   const [loginForm, setLoginForm] = useState({
@@ -49,14 +49,72 @@ export function Auth() {
     })
   }
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const signupHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setIsLoading(true)
-    console.log("Signup form values:", signupForm)
-    console.log("Login form values:", loginForm)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setIsLoading(false)
+  
+    try {
+      // Send the POST request to the server
+      const response = await fetch('http://localhost:8080/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: signupForm.name,
+          email: signupForm.email,
+          password: signupForm.password,
+        }),
+      })
+  
+      const data = await response.json()
+  
+      // Check if the request was successful
+      if (response.ok) {
+        console.log('Signup successful:', data)
+        // Redirect to the dashboard or another page if needed
+      } else {
+        console.error('Signup failed:', data.message || 'Unknown error')
+        // Handle error message
+      }
+    } catch (error) {
+      console.error('Error during signup:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  const loginHandler = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setIsLoading(true)
+  
+    try {
+      // Send the POST request to the server
+      const response = await fetch('http://localhost:8080/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: loginForm.email,
+          password: loginForm.password,
+        }),
+      })
+  
+      const data = await response.json()
+  
+      // Check if the request was successful
+      if (response.ok) {
+        console.log('Login successful:', data)
+        // Perform further actions, like redirecting to a dashboard
+      } else {
+        console.error('Login failed:', data.message || 'Unknown error')
+        // Handle error message
+      }
+    } catch (error) {
+      console.error('Error during login:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleGoogleAuth = async () => {
@@ -73,7 +131,19 @@ export function Auth() {
       content: (
         <TabContent>
           <h2 className="text-2xl md:text-3xl font-bold mb-6">Start Your Journey</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={signupHandler} className="space-y-4">
+          <div>
+              <Label htmlFor="text" className="text-white">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                value={signupForm.name}
+                onChange={handleSignupChange}
+                placeholder="sky explorer"
+                required
+                className="mt-1"
+              />
+            </div>
             <div>
               <Label htmlFor="email" className="text-white">Email</Label>
               <Input
@@ -92,17 +162,6 @@ export function Auth() {
                 id="password"
                 type="password"
                 value={signupForm.password}
-                onChange={handleSignupChange}
-                required
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="confirmPassword" className="text-white">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={signupForm.confirmPassword}
                 onChange={handleSignupChange}
                 required
                 className="mt-1"
@@ -163,7 +222,7 @@ export function Auth() {
       content: (
         <TabContent>
           <h2 className="text-2xl md:text-3xl font-bold mb-6">Welcome Back, Explorer</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={loginHandler} className="space-y-4">
             <div>
               <Label htmlFor="email" className="text-white">Email</Label>
               <Input

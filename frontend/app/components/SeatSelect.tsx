@@ -9,17 +9,20 @@ type SeatBookingProps = {
   flightId: string;
 };
 
-type TicketDetails = {
+type FlightDetails = {
+  id: number;
   source: string;
   destination: string;
-  departureTime: string;
-  arrivalTime: string;
-  premiumCost: number;
-  economicalCost: number;
+  departure: string;
+  arrival: string;
+  cost: number
 };
 
+const [isLoading, setIsLoading] = useState(true)
+
+
 export function SeatSelect({ flightId }: SeatBookingProps) {
-  const [ticketDetails, setTicketDetails] = useState<TicketDetails | null>(
+  const [flightDetails, setFlightDetails] = useState<FlightDetails | null>(
     null
   );
   const [seats, setSeats] = useState<boolean[][]>([]);
@@ -32,15 +35,33 @@ export function SeatSelect({ flightId }: SeatBookingProps) {
     // Simulating API call to fetch ticket details and seat availability
     const fetchFlightDetails = async () => {
       // In a real application, you would fetch the data from your backend
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulating network delay
-      setTicketDetails({
-        source: "New York (JFK)",
-        destination: "London (LHR)",
-        departureTime: "2023-07-15 10:00 AM",
-        arrivalTime: "2023-07-15 10:00 PM",
-        premiumCost: 200,
-        economicalCost: 100,
-      });
+      setIsLoading(true);
+      
+      try {
+        const url = `http://localhost:8080/flights/${flightId}`;
+        
+        const response = await fetch(url, {
+          method: "GET",
+        });
+    
+        if (!response.ok) {
+          throw new Error("Failed to fetch flight details.");
+        }
+    
+        const data = await response.json();
+        setFlightDetails({
+          id: data.id,
+          source: data.source,
+          destination: data.destination,
+          departure: data.departure,
+          arrival: data.arrival,
+          cost: data.cost
+        });
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        setIsLoading(false);
+      }
 
       // Generate random seat availability
       const generatedSeats = Array(30)
@@ -63,19 +84,19 @@ export function SeatSelect({ flightId }: SeatBookingProps) {
       : [...selectedSeats, seatIndex];
     setSelectedSeats(newSelectedSeats);
 
-    if (ticketDetails) {
+    if (flightDetails) {
       const newTotalCost = newSelectedSeats.reduce((total, seat) => {
         const row = Math.floor(seat / 6);
         return (
           total +
-          (row < 10 ? ticketDetails.premiumCost : ticketDetails.economicalCost)
+          (row < 10 ? flightDetails.cost*2 : flightDetails.cost)
         );
       }, 0);
       setTotalCost(newTotalCost);
     }
   };
 
-  if (!ticketDetails || seats.length === 0) {
+  if (!flightDetails || seats.length === 0) {
     return (
       <div className="flex justify-center items-center h-screen">
         Loading...
@@ -93,18 +114,18 @@ export function SeatSelect({ flightId }: SeatBookingProps) {
       <Card className="max-w-4xl mx-auto mb-8">
         <CardHeader>
           <CardTitle className="text-center text-2xl">
-            {ticketDetails.source} to {ticketDetails.destination}
+            {flightDetails.source} to {flightDetails.destination}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex justify-between items-center">
             <div className="flex items-center">
               <Clock className="h-5 w-5 mr-2" />
-              <span>Departure: {ticketDetails.departureTime}</span>
+              <span>Departure: {flightDetails.departure}</span>
             </div>
             <div className="flex items-center">
               <Clock className="h-5 w-5 mr-2" />
-              <span>Arrival: {ticketDetails.arrivalTime}</span>
+              <span>Arrival: {flightDetails.arrival}</span>
             </div>
           </div>
         </CardContent>
@@ -143,8 +164,8 @@ export function SeatSelect({ flightId }: SeatBookingProps) {
               Selected Seats: {selectedSeats.length}
             </p>
             <p className="text-sm text-gray-600">
-              (Premium: ${ticketDetails.premiumCost}, Economy: $
-              {ticketDetails.economicalCost})
+              (Premium: ${flightDetails.cost*2}, Economy: $
+              {flightDetails.cost})
             </p>
           </div>
           <p className="text-xl font-bold">Total Cost: ${totalCost}</p>
