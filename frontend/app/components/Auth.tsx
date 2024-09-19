@@ -69,15 +69,14 @@ export function Auth() {
         }),
       })
   
-      const data = await response.json()
   
       // Check if the request was successful
       if (response.ok) {
-        console.log('Signup successful:', data)
-        router.push('/checkout')
+        console.log('Signup successful:')
+        router.push(`/checkout`)
         // Redirect to the dashboard or another page if needed
       } else {
-        console.error('Signup failed:', data.message || 'Unknown error')
+        console.error('Signup failed:')
         // Handle error message
       }
     } catch (error) {
@@ -103,15 +102,13 @@ export function Auth() {
         }),
       })
   
-      const data = await response.json()
-  
       // Check if the request was successful
       if (response.ok) {
-        console.log('Login successful:', data)
+        console.log('Login successful:')
         router.push('/checkout')
         // Perform further actions, like redirecting to a dashboard
       } else {
-        console.error('Login failed:', data.message || 'Unknown error')
+        console.error('Login failed:')
         // Handle error message
       }
     } catch (error) {
