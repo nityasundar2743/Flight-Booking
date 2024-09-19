@@ -120,6 +120,7 @@ export function Checkout() {
       const data = await response.json();
       console.log("data from server ",data);
       setFlights(data);
+      setIsSearched(true)
     } catch (error) {
       console.error("Error:", error);
     }

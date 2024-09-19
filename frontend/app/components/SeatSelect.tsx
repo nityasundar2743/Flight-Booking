@@ -18,13 +18,14 @@ type FlightDetails = {
   cost: number
 };
 
-const [isLoading, setIsLoading] = useState(true)
 
 
 export function SeatSelect({ flightId }: SeatBookingProps) {
   const [flightDetails, setFlightDetails] = useState<FlightDetails | null>(
     null
   );
+  const [isLoading, setIsLoading] = useState(true)
+
   const [seats, setSeats] = useState<boolean[][]>([]);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
   const [totalCost, setTotalCost] = useState(0);

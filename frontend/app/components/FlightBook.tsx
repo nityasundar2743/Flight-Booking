@@ -46,6 +46,8 @@ export function FlightBook({ flightId }: FlightBookProps) {
   const bookTicketHandler = async () => {
     setIsLoading(true);
     const url = 'http://localhost:8080/ticket/save';
+    console.log(flightId)
+    console.log(passengers)
     const body = JSON.stringify({
       flightId: flightId,
       passengers: passengers,
@@ -54,6 +56,8 @@ export function FlightBook({ flightId }: FlightBookProps) {
     try {
       const response = await fetch(url, {
         method: 'POST',
+        credentials: 'include', // ensures cookies are sent
+
         headers: {
           'Content-Type': 'application/json',
         },

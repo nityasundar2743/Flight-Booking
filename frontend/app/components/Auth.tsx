@@ -8,6 +8,7 @@ import { Label } from "./ui/label"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Plane, Cloud, Sun, Loader2 } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 const TabContent = ({ children }: { children: React.ReactNode }) => (
   <div className="w-full overflow-hidden relative h-full rounded-2xl p-8 text-white bg-gradient-to-br from-sky-400 to-indigo-900">
@@ -21,6 +22,7 @@ const TabContent = ({ children }: { children: React.ReactNode }) => (
 )
 
 export function Auth() {
+  const router=useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false)
 
@@ -72,6 +74,7 @@ export function Auth() {
       // Check if the request was successful
       if (response.ok) {
         console.log('Signup successful:', data)
+        router.push('/checkout')
         // Redirect to the dashboard or another page if needed
       } else {
         console.error('Signup failed:', data.message || 'Unknown error')
@@ -105,6 +108,7 @@ export function Auth() {
       // Check if the request was successful
       if (response.ok) {
         console.log('Login successful:', data)
+        router.push('/checkout')
         // Perform further actions, like redirecting to a dashboard
       } else {
         console.error('Login failed:', data.message || 'Unknown error')
