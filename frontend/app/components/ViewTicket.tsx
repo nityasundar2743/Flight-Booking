@@ -13,10 +13,11 @@ type TicketInfo = {
   confirmationId: string
   source: string
   destination: string
-  departureTime: string
-  arrivalTime: string
+  departure: string
+  arrival: string
   duration: string
-  companyName: string
+  airline: string
+  cost:number
   passengers: {
     name: string
     email: string
@@ -34,10 +35,14 @@ export function ViewTicket() {
     setIsLoading(true);
     
     try {
-      const url = `http://localhost:8080/ticket?confirmationID=${confirmationId}`;
+      const url = `http://localhost:8080/ticket/${confirmationId}`;
       
       const response = await fetch(url, {
         method: 'GET',
+        credentials: "include",
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
   
       if (!response.ok) {
@@ -45,19 +50,21 @@ export function ViewTicket() {
       }
   
       const data = await response.json();
-      console.log(data)
+      console.log("data is ",data)
   
       // Set the fetched ticket info in the state
       setTicketInfo({
-        confirmationId: data.confirmationId,
-        source: data.source,
-        destination: data.destination,
-        departureTime: data.departureTime,
-        arrivalTime: data.arrivalTime,
-        duration: data.duration,
-        companyName: data.companyName,
+        confirmationId: data.id,
+        source: data.flight.source,
+        destination: data.flight.destination,
+        departure: data.flight.departure,
+        arrival: data.flight.arrival,
+        duration: data.flight.duration,
+        airline: data.flight.airline,
         passengers: data.passengers,
+        cost: data.flight.cost
       });
+      console.log("ticket is ",ticketInfo)
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -103,7 +110,7 @@ export function ViewTicket() {
           <Card className="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
             <div className="bg-sky-500 text-white p-6">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold">{ticketInfo.companyName}</h2>
+                <h2 className="text-2xl font-bold">{ticketInfo.airline}</h2>
                 <PlaneTakeoff className="h-8 w-8" />
               </div>
               <p className="text-sm mt-2">Confirmation ID: {ticketInfo.confirmationId}</p>
@@ -125,13 +132,13 @@ export function ViewTicket() {
                   <p className="text-sm text-gray-500 flex items-center">
                     <Calendar className="h-4 w-4 mr-2" /> Departure
                   </p>
-                  <p className="font-semibold">{ticketInfo.departureTime}</p>
+                  <p className="font-semibold">{ticketInfo.departure}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 flex items-center">
                     <Calendar className="h-4 w-4 mr-2" /> Arrival
                   </p>
-                  <p className="font-semibold">{ticketInfo.arrivalTime}</p>
+                  <p className="font-semibold">{ticketInfo.arrival}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 flex items-center">

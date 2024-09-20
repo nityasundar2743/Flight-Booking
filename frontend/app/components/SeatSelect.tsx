@@ -78,6 +78,8 @@ export function SeatSelect({ flightId }: SeatBookingProps) {
     fetchFlightDetails();
   }, [flightId]);
 
+
+
   const handleSeatClick = (row: number, col: number) => {
     const seatIndex = row * 6 + col;
     const newSelectedSeats = selectedSeats.includes(seatIndex)
@@ -171,7 +173,7 @@ export function SeatSelect({ flightId }: SeatBookingProps) {
           </div>
           <p className="text-xl font-bold">Total Cost: ${totalCost}</p>
         </div>
-        <Button className="w-full mt-4" disabled={selectedSeats.length === 0}>
+        <Button className="w-full mt-4" disabled={selectedSeats.length === 0} >
           Proceed to Payment
         </Button>
       </div>
