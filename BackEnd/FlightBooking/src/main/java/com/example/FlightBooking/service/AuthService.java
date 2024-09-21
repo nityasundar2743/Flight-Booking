@@ -2,6 +2,9 @@ package com.example.FlightBooking.service;
 
 import com.example.FlightBooking.entity.User;
 import com.example.FlightBooking.repository.UserRepository;
+
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,5 +39,10 @@ public class AuthService {
             }
         }
         return null;  // Return null if authentication fails
+    }
+    
+    public void inValidateUser (HttpSession session) {
+    	session.invalidate();
+    	System.out.println("Session Invalidated Successfully!");
     }
 }

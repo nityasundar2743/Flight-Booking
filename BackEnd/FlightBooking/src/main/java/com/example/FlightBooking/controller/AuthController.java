@@ -52,4 +52,17 @@ public class AuthController {
             return new ResponseEntity<>("Invalid email or password.", HttpStatus.UNAUTHORIZED);
         }
     }
+    
+    @GetMapping("/logout")
+    public ResponseEntity<String> logoutUser(HttpSession session){
+    	User user = (User) session.getAttribute("loggedInUser");
+        
+        if (user != null) {
+            // Store the authenticated user in the session
+            authService.inValidateUser(session);
+            return new ResponseEntity<>("User Logged Out successfully.", HttpStatus.OK);
+        } else {
+        	return new ResponseEntity<>("Something Went Wrong!", HttpStatus.BAD_REQUEST);
+        }
+    }
 }
