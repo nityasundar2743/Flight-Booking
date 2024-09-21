@@ -1,9 +1,12 @@
 // components/Header.tsx
+"use client"
 import Link from "next/link";
 import { PlaneTakeoff, User } from "lucide-react"; // Assuming you're using Lucide for icons
 import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation";
 
 export default function Header() {
+  const router = useRouter();
   return (
     <header className="px-4 lg:px-6 h-16 flex items-center bg-sky-500 text-white">
       <Link className="flex items-center justify-center" href="#">
@@ -20,7 +23,7 @@ export default function Header() {
         <Link className="text-sm font-medium hover:underline underline-offset-4" href="#">
           Contact
         </Link>
-        <Button variant="secondary" size="sm" className="bg-white text-sky-500 hover:bg-sky-100">
+        <Button variant="secondary" size="sm" className="bg-white text-sky-500 hover:bg-sky-100" onClick={()=>{router.push("/auth")}}>
           <User className="h-4 w-4 mr-2" />
           Login
         </Button>
