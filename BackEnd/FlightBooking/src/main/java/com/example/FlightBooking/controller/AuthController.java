@@ -3,7 +3,6 @@ package com.example.FlightBooking.controller;
 import com.example.FlightBooking.entity.User;
 import com.example.FlightBooking.service.AuthService;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 import java.util.Map;
@@ -23,12 +22,13 @@ public class AuthController {
 
     // Endpoint for user registration
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody Map<String, Object> requestBody, HttpServletRequest request) {
+    public ResponseEntity<String> registerUser(@RequestBody Map<String, Object> requestBody, HttpSession session) {
         try {
             String name = (String) requestBody.get("name");
             String email = (String) requestBody.get("email");
             String password = (String) requestBody.get("password");
             User user = authService.registerUser(name, email, password);
+            session.setAttribute("loggedInUser", user);
             return new ResponseEntity<>("User registered successfully.", HttpStatus.CREATED);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -42,11 +42,11 @@ public class AuthController {
         // Attempt to authenticate the user
         String email = (String) requestBody.get("email");
         String password = (String) requestBody.get("password");
-        User authenticatedUser = authService.authenticateUser(email, password);
+        User user = authService.authenticateUser(email, password);
         
-        if (authenticatedUser != null) {
+        if (user != null) {
             // Store the authenticated user in the session
-            session.setAttribute("loggedInUser", authenticatedUser);
+            session.setAttribute("loggedInUser", user);
             return new ResponseEntity<>("User authenticated successfully.", HttpStatus.OK);
         } else {
             return new ResponseEntity<>("Invalid email or password.", HttpStatus.UNAUTHORIZED);

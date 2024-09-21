@@ -9,7 +9,6 @@ import com.example.FlightBooking.entity.User;
 import com.example.FlightBooking.service.FlightService;
 import com.example.FlightBooking.service.TicketService;
 
-import ch.qos.logback.classic.Logger;
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;

@@ -32,6 +32,9 @@ public class Ticket {
 
     @JsonProperty("passengerCount")
     private int passengerCount;
+    
+    
+    //private String SeatNumber;
 
     public Ticket() {
         // Initialize passengers list if needed
