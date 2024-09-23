@@ -1,173 +1,254 @@
 "use client"
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { PlaneTakeoff, Clock, Users, Calendar } from 'lucide-react'
-import { BackgroundBeamsWithCollision } from './ui/background-beams-with-collision'
+import { PlaneTakeoff, Sun, Moon, Search, ArrowRight, Calendar, Clock, Users, ArrowLeft } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { motion, AnimatePresence } from "framer-motion"
 
-type TicketInfo = {
-  confirmationId: string
+interface Passenger {
+  name: string
+  email: string
+  phone: string
+}
+
+interface Ticket {
+  confirmationKey: string
+  airline: string
   source: string
   destination: string
   departure: string
   arrival: string
   duration: string
-  airline: string
+  passengers: Passenger[],
   cost:number
-  passengers: {
-    name: string
-    email: string
-    phone: string
-  }[]
 }
 
 export function ViewTicket() {
-  const [confirmationId, setConfirmationId] = useState('')
-  const [ticketInfo, setTicketInfo] = useState<TicketInfo | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(false)
+  const [searchKey, setSearchKey] = useState("")
+  const [tickets, setTickets] = useState<Ticket[]>([])
+  const [filteredTickets, setFilteredTickets] = useState<Ticket[]>([])
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null)
 
-  const fetchTicketInfo = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    try {
-      const url = `http://localhost:8080/ticket/${confirmationId}`;
-      
-      const response = await fetch(url, {
-        method: 'GET',
-        credentials: "include",
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error('Failed to fetch ticket info');
-      }
-  
-      const data = await response.json();
-      console.log("data is ",data)
-  
-      // Set the fetched ticket info in the state
-      setTicketInfo({
-        confirmationId: data.id,
-        source: data.flight.source,
-        destination: data.flight.destination,
-        departure: data.flight.departure,
-        arrival: data.flight.arrival,
-        duration: data.flight.duration,
-        airline: data.flight.airline,
-        passengers: data.passengers,
-        cost: data.flight.cost
-      });
-      console.log("ticket is ",ticketInfo)
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setIsLoading(false);
+  useEffect(() => {
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setIsDarkMode(true)
     }
-  };
+
+    // Simulating API call to fetch tickets
+    const fetchTickets = async () => {
+      // Replace this with actual API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setTickets([
+        {
+          confirmationKey: "ABC123",
+          airline: "SkyHigh Airways",
+          source: "New York (JFK)",
+          destination: "London (LHR)",
+          departure: "2024-03-15",
+          arrival: "2024-03-16",
+          duration: "7h 15m",
+          passengers: [
+            { name: "John Doe", email: "john@example.com", phone: "+1234567890" },
+            { name: "Jane Doe", email: "jane@example.com", phone: "+1987654321" }
+          ],
+          cost:20000
+        },
+        {
+          confirmationKey: "DEF456",
+          airline: "Global Airlines",
+          source: "Paris (CDG)",
+          destination: "Tokyo (HND)",
+          departure: "2024-04-02",
+          arrival: "2024-04-03",
+          duration: "12h 15m",
+          passengers: [
+            { name: "Alice Smith", email: "alice@example.com", phone: "+1122334455" }
+          ],
+          cost:20000
+        },
+        // Add more ticket data as needed
+      ])
+    }
+
+    fetchTickets()
+  }, [])
+
+  useEffect(() => {
+    setFilteredTickets(
+      tickets.filter(ticket => 
+        ticket.confirmationKey.toLowerCase().includes(searchKey.toLowerCase()) ||
+        ticket.source.toLowerCase().includes(searchKey.toLowerCase()) ||
+        ticket.destination.toLowerCase().includes(searchKey.toLowerCase())
+      )
+    )
+  }, [searchKey, tickets])
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode)
+  }
+
+  const handleTicketSelect = (ticket: Ticket) => {
+    setSelectedTicket(ticket)
+  }
+
+  const handleBack = () => {
+    setSelectedTicket(null)
+  }
 
   return (
-    <BackgroundBeamsWithCollision className="min-h-screen bg-zinc-900 p-4 flex flex-col items-center">
+    <div className={`min-h-screen p-4 sm:p-6 lg:p-8 ${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-100 text-gray-900'}`}>
+      <div className="max-w-4xl mx-auto">
+        <header className="flex justify-between items-center mb-8">
+          <div className="flex items-center">
+            <PlaneTakeoff className="h-10 w-10 text-sky-500 mr-2" />
+            <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-sky-400' : 'text-sky-600'}`}>SkyBooker</h1>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Sun className="h-4 w-4" />
+            <Switch checked={isDarkMode} onCheckedChange={toggleTheme} />
+            <Moon className="h-4 w-4" />
+          </div>
+        </header>
 
-      {!ticketInfo && (
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>View Your Ticket</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={fetchTicketInfo} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="confirmationId">Confirmation ID</Label>
-                <Input
-                  id="confirmationId"
-                  value={confirmationId}
-                  onChange={(e) => setConfirmationId(e.target.value)}
-                  placeholder="Enter your confirmation ID"
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Loading...' : 'View Ticket'}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      )}
-
-      {ticketInfo && (
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-2xl"
-        >
-          <Card className="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
-            <div className="bg-sky-500 text-white p-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold">{ticketInfo.airline}</h2>
-                <PlaneTakeoff className="h-8 w-8" />
-              </div>
-              <p className="text-sm mt-2">Confirmation ID: {ticketInfo.confirmationId}</p>
-            </div>
-            <CardContent className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <p className="text-sm text-gray-500">From</p>
-                  <p className="text-xl font-semibold">{ticketInfo.source}</p>
-                </div>
-                <PlaneTakeoff className="h-6 w-6 text-sky-500 mx-4" />
-                <div>
-                  <p className="text-sm text-gray-500">To</p>
-                  <p className="text-xl font-semibold">{ticketInfo.destination}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div>
-                  <p className="text-sm text-gray-500 flex items-center">
-                    <Calendar className="h-4 w-4 mr-2" /> Departure
-                  </p>
-                  <p className="font-semibold">{ticketInfo.departure}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 flex items-center">
-                    <Calendar className="h-4 w-4 mr-2" /> Arrival
-                  </p>
-                  <p className="font-semibold">{ticketInfo.arrival}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 flex items-center">
-                    <Clock className="h-4 w-4 mr-2" /> Duration
-                  </p>
-                  <p className="font-semibold">{ticketInfo.duration}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 flex items-center">
-                    <Users className="h-4 w-4 mr-2" /> Passengers
-                  </p>
-                  <p className="font-semibold">{ticketInfo.passengers.length}</p>
-                </div>
-              </div>
-              <div className="border-t pt-4">
-                <h3 className="font-semibold mb-2">Passenger Information</h3>
-                {ticketInfo.passengers.map((passenger, index) => (
-                  <div key={index} className="mb-2 last:mb-0">
-                    <p className="font-medium">{passenger.name}</p>
-                    <p className="text-sm text-gray-500">{passenger.email}</p>
-                    <p className="text-sm text-gray-500">{passenger.phone}</p>
+        <AnimatePresence mode="wait">
+          {!selectedTicket ? (
+            <motion.div
+              key="list"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card className={`mb-6 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                <CardHeader>
+                  <CardTitle className={isDarkMode ? 'text-gray-100' : 'text-gray-900'}>Upcoming Journeys</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      type="text"
+                      placeholder="Search by confirmation key or destination"
+                      value={searchKey}
+                      onChange={(e) => setSearchKey(e.target.value)}
+                      className={`flex-grow ${isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'}`}
+                    />
+                    <Button className={isDarkMode ? 'bg-sky-600 hover:bg-sky-700' : 'bg-sky-600 hover:bg-sky-700'}>
+                      <Search className="h-4 w-4" />
+                      <span className="sr-only">Search</span>
+                    </Button>
                   </div>
+                </CardContent>
+              </Card>
+
+              <div className="space-y-4">
+                {filteredTickets.map((ticket) => (
+                  <Card 
+                    className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} cursor-pointer hover:shadow-lg transition-shadow duration-300`}
+                    onClick={() => handleTicketSelect(ticket)}
+                  >
+                    <CardContent className="flex justify-between items-center p-4">
+                      <div className="flex items-center space-x-2">
+                        <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{ticket.source}</span>
+                        <ArrowRight className={`h-4 w-4 ${isDarkMode ? 'text-sky-400' : 'text-sky-600'}`} />
+                        <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{ticket.destination}</span>
+                      </div>
+                      <div className="text-right">
+                        <p className={`font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{ticket.departure}</p>
+                        <p className={`text-xs ${isDarkMode ? 'text-sky-400' : 'text-sky-600'}`}>Confirmation: {ticket.confirmationKey}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
-    {/* </div> */}
-    </BackgroundBeamsWithCollision>
+
+              {filteredTickets.length === 0 && (
+                <p className={`text-center mt-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  No upcoming journeys found.
+                </p>
+              )}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="details"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              transition={{ duration: 0.5 }}
+              className="w-full max-w-2xl mx-auto"
+            >
+              <Button
+                onClick={handleBack}
+                className={`mb-4 ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-100' : 'bg-gray-200 hover:bg-gray-300 text-gray-800'}`}
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Journeys
+              </Button>
+              <Card className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-300`}>
+                <div className={`${isDarkMode ? 'bg-sky-700' : 'bg-sky-500'} text-white p-6`}>
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-2xl font-bold">{selectedTicket.airline}</h2>
+                    <PlaneTakeoff className="h-8 w-8" />
+                  </div>
+                  <p className="text-sm mt-2">Confirmation ID: {selectedTicket.confirmationKey}</p>
+                </div>
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <div>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>From</p>
+                      <p className={`text-xl font-semibold ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>{selectedTicket.source}</p>
+                    </div>
+                    <PlaneTakeoff className={`h-6 w-6 ${isDarkMode ? 'text-sky-400' : 'text-sky-500'} mx-4`} />
+                    <div>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>To</p>
+                      <p className={`text-xl font-semibold ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>{selectedTicket.destination}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center`}>
+                        <Calendar className="h-4 w-4 mr-2" /> Departure
+                      </p>
+                      <p className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>{`${selectedTicket.departure} `}</p>
+                    </div>
+                    <div>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center`}>
+                        <Calendar className="h-4 w-4 mr-2" /> Arrival
+                      </p>
+                      <p className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>{`${selectedTicket.arrival} `}</p>
+                    </div>
+                    <div>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center`}>
+                        <Clock className="h-4 w-4 mr-2" /> Duration
+                      </p>
+                      <p className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>{selectedTicket.duration}</p>
+                    </div>
+                    <div>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center`}>
+                        <Users className="h-4 w-4 mr-2" /> Passengers
+                      </p>
+                      <p className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>{selectedTicket.passengers.length}</p>
+                    </div>
+                  </div>
+                  <div className={`border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} pt-4`}>
+                    <h3 className={`font-semibold mb-2 ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>Passenger Information</h3>
+                    {selectedTicket.passengers.map((passenger, index) => (
+                      <div key={index} className="mb-2 last:mb-0">
+                        <p className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>{passenger.name}</p>
+                        <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{passenger.email}</p>
+                        <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{passenger.phone}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
   )
 }

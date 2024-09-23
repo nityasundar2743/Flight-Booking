@@ -63,7 +63,7 @@ export function FlightBook({ flightId }: FlightBookProps) {
     };
 
     fetchFlightDetails(flightId);
-  }, [flightId]);
+  },[]);
 
   useEffect(() => {
     if (
