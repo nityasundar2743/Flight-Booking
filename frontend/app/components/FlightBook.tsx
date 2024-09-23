@@ -1,101 +1,57 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { PlaneTakeoff, ArrowRight } from 'lucide-react'
-import { BackgroundGradient } from './ui/background-gradient'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { PlaneTakeoff, Sun, Moon, ArrowRight } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { useRouter } from "next/navigation";
+
+interface Passenger {
+  name: string;
+  email: string;
+  phone: string;
+}
+
+interface FlightInfo {
+  source: string;
+  destination: string;
+}
 
 interface FlightBookProps {
   flightId: string;
 }
 
-
-type FlightDetails = {
-  source: string
-  destination: string
-}
-
-type Passenger = {
-  name: string
-  email: string
-  phone: string
-}
-
 export function FlightBook({ flightId }: FlightBookProps) {
-  const [flightDetails, setFlightDetails] = useState<FlightDetails | null>(null)
-  const [passengerCount, setPassengerCount] = useState(1)
-  const [passengers, setPassengers] = useState<Passenger[]>([{ name: '', email: '', phone: '' }])
-  const [isLoading, setIsLoading] = useState(true)
-
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [passengerCount, setPassengerCount] = useState(1);
+  const [passengers, setPassengers] = useState<Passenger[]>([
+    { name: "", email: "", phone: "" },
+  ]);
+  const [flightInfo, setFlightInfo] = useState<FlightInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-
-  const bookTicketHandler = async () => {
-    setIsLoading(true);
-    const url = 'http://localhost:8080/ticket/save';
-    console.log(flightId)
-    console.log(passengers)
-    const body = JSON.stringify({
-      flightId: flightId,
-      passengers: passengers,
-    });
-
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        credentials: 'include', // ensures cookies are sent
-
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: body,
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save the ticket');
-      }
-      console.log(response)
-
-      // After the ticket is successfully saved, navigate to seat selection
-      router.push(`/book/seat-select/${flightId}`);
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   useEffect(() => {
     // Simulating API call to fetch flight details
-    const fetchFlightDetails = async (flightId:string) => {
+    const fetchFlightDetails = async (flightId: string) => {
       setIsLoading(true);
-      
+
       try {
         const url = `http://localhost:8080/flights/${flightId}`;
-        
+
         const response = await fetch(url, {
           method: "GET",
         });
-    
+
         if (!response.ok) {
           throw new Error("Failed to fetch flight details.");
         }
-    
+
         const data = await response.json();
-        setFlightDetails({
+        setFlightInfo({
           source: data.source,
           destination: data.destination,
         });
@@ -105,138 +61,285 @@ export function FlightBook({ flightId }: FlightBookProps) {
         setIsLoading(false);
       }
     };
-    
 
-    fetchFlightDetails(flightId)
-  }, [flightId])
+    fetchFlightDetails(flightId);
+  }, [flightId]);
 
-  const handlePassengerCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const count = parseInt(e.target.value)
-    setPassengerCount(count)
-    setPassengers(prevPassengers => {
-      const newPassengers = [...prevPassengers]
-      if (count > prevPassengers.length) {
-        for (let i = prevPassengers.length; i < count; i++) {
-          newPassengers.push({ name: '', email: '', phone: '' })
-        }
-      } else if (count < prevPassengers.length) {
-        newPassengers.splice(count)
+  useEffect(() => {
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      setIsDarkMode(true);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
+  const handlePassengerCountChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const count = parseInt(e.target.value);
+
+    if (!e.target.value || isNaN(count) || count<1) {
+      setPassengerCount(0);
+      setPassengers(Array(0).fill({ name: "", email: "", phone: "" }));
+      return;
+    }
+    setPassengerCount(count);
+    setPassengers(Array(count).fill({ name: "", email: "", phone: "" }));
+  };
+
+  const handlePassengerChange = (
+    index: number,
+    field: keyof Passenger,
+    value: string
+  ) => {
+    const updatedPassengers = [...passengers];
+    updatedPassengers[index] = { ...updatedPassengers[index], [field]: value };
+    setPassengers(updatedPassengers);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Booking submitted:", passengers);
+    // Here you would typically send the data to your backend
+    setIsLoading(true);
+    const url = "http://localhost:8080/ticket/save";
+    console.log(flightId);
+    console.log(passengers);
+    const body = JSON.stringify({
+      flightId: flightId,
+      passengers: passengers,
+    });
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        credentials: "include", // ensures cookies are sent
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: body,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save the ticket");
       }
-      return newPassengers
-    })
-  }
+      console.log(response);
 
-  const handlePassengerChange = (index: number, field: keyof Passenger, value: string) => {
-    setPassengers(prevPassengers => {
-      const newPassengers = [...prevPassengers]
-      newPassengers[index] = { ...newPassengers[index], [field]: value }
-      return newPassengers
-    })
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Here you would typically send the booking data to your backend
-    console.log('Booking submitted:', { flightId, passengers })
-  }
-
-  if (isLoading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>
-  }
+      // After the ticket is successfully saved, navigate to seat selection
+      router.push(`/book/seat-select/${flightId}`);
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-zinc-900 p-4">
-      <header className="flex justify-center items-center mb-6">
-        <PlaneTakeoff className="h-8 w-8 text-sky-500 mr-2" />
-        <span className="text-2xl font-bold text-sky-700">SkyBooker</span>
-      </header>
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle className="text-center">
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="flex items-center justify-center text-2xl font-bold text-sky-700"
+    <div
+      className={`min-h-screen p-4 sm:p-6 lg:p-8 ${
+        isDarkMode ? "bg-gray-900 text-gray-100" : "bg-gray-100 text-gray-900"
+      }`}
+    >
+      <div className="max-w-4xl mx-auto">
+        <header className="flex justify-between items-center mb-8">
+          <div className="flex items-center">
+            <PlaneTakeoff className="h-10 w-10 text-sky-500 mr-2" />
+            <h1
+              className={`text-3xl font-bold ${
+                isDarkMode ? "text-sky-400" : "text-sky-600"
+              }`}
             >
-              {flightDetails?.source}
-              <ArrowRight className="mx-2" />
-              {flightDetails?.destination}
-            </motion.div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <Label htmlFor="passengerCount">Number of Passengers</Label>
-              <Input
-                id="passengerCount"
-                type="number"
-                min="1"
-                max="10"
-                value={passengerCount}
-                onChange={handlePassengerCountChange}
-              />
-            </div>
+              SkyBooker
+            </h1>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Sun className="h-4 w-4" />
+            <Switch checked={isDarkMode} onCheckedChange={toggleTheme} />
+            <Moon className="h-4 w-4" />
+          </div>
+        </header>
 
-            {passengers.map((passenger, index) => (
-              <div key={index} className="space-y-4">
-                <h3 className="font-semibold">Passenger {index + 1}</h3>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Card
+          className={`mb-6 ${
+            isDarkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
+          }`}
+        >
+          <CardContent className="py-4">
+            {isLoading ? (
+              <p
+                className={`text-center ${
+                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                Loading flight information...
+              </p>
+            ) : flightInfo ? (
+              <div className="flex items-center justify-center space-x-4">
+                <span
+                  className={`text-lg font-semibold ${
+                    isDarkMode ? "text-gray-200" : "text-gray-800"
+                  }`}
+                >
+                  {flightInfo.source}
+                </span>
+                <ArrowRight
+                  className={`h-6 w-6 ${
+                    isDarkMode ? "text-sky-400" : "text-sky-600"
+                  }`}
+                />
+                <span
+                  className={`text-lg font-semibold ${
+                    isDarkMode ? "text-gray-200" : "text-gray-800"
+                  }`}
+                >
+                  {flightInfo.destination}
+                </span>
+              </div>
+            ) : (
+              <p
+                className={`text-center ${
+                  isDarkMode ? "text-red-400" : "text-red-600"
+                }`}
+              >
+                Failed to load flight information.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card
+          className={
+            isDarkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
+          }
+        >
+          <CardHeader>
+            <CardTitle
+              className={isDarkMode ? "text-gray-100" : "text-gray-900"}
+            >
+              Ticket Booking Form
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <Label
+                  htmlFor="passengerCount"
+                  className={isDarkMode ? "text-gray-200" : "text-gray-700"}
+                >
+                  Number of Passengers
+                </Label>
+                <Input
+                  id="passengerCount"
+                  type="number"
+                  min="1"
+                  value={passengerCount}
+                  onChange={handlePassengerCountChange}
+                  className={`mt-1 ${
+                    isDarkMode
+                      ? "bg-gray-700 border-gray-600 text-gray-100"
+                      : "bg-white border-gray-300 text-gray-900"
+                  }`}
+                />
+              </div>
+
+              {passengers.map((passenger, index) => (
+                <div key={index} className="space-y-4">
+                  <h3
+                    className={`text-lg font-semibold ${
+                      isDarkMode ? "text-gray-200" : "text-gray-700"
+                    }`}
+                  >
+                    Passenger {index + 1}
+                  </h3>
                   <div>
-                    <Label htmlFor={`name-${index}`}>Name</Label>
+                    <Label
+                      htmlFor={`name-${index}`}
+                      className={isDarkMode ? "text-gray-200" : "text-gray-700"}
+                    >
+                      Name
+                    </Label>
                     <Input
                       id={`name-${index}`}
                       value={passenger.name}
-                      onChange={(e) => handlePassengerChange(index, 'name', e.target.value)}
-                      required
+                      onChange={(e) =>
+                        handlePassengerChange(index, "name", e.target.value)
+                      }
+                      className={`mt-1 ${
+                        isDarkMode
+                          ? "bg-gray-700 border-gray-600 text-gray-100"
+                          : "bg-white border-gray-300 text-gray-900"
+                      }`}
                     />
                   </div>
                   <div>
-                    <Label htmlFor={`email-${index}`}>Email</Label>
+                    <Label
+                      htmlFor={`email-${index}`}
+                      className={isDarkMode ? "text-gray-200" : "text-gray-700"}
+                    >
+                      Email
+                    </Label>
                     <Input
                       id={`email-${index}`}
                       type="email"
                       value={passenger.email}
-                      onChange={(e) => handlePassengerChange(index, 'email', e.target.value)}
-                      required
+                      onChange={(e) =>
+                        handlePassengerChange(index, "email", e.target.value)
+                      }
+                      className={`mt-1 ${
+                        isDarkMode
+                          ? "bg-gray-700 border-gray-600 text-gray-100"
+                          : "bg-white border-gray-300 text-gray-900"
+                      }`}
                     />
                   </div>
-                  <div className="sm:col-span-2">
-                    <Label htmlFor={`phone-${index}`}>Phone Number</Label>
+                  <div>
+                    <Label
+                      htmlFor={`phone-${index}`}
+                      className={isDarkMode ? "text-gray-200" : "text-gray-700"}
+                    >
+                      Phone Number
+                    </Label>
                     <Input
                       id={`phone-${index}`}
                       type="tel"
                       value={passenger.phone}
-                      onChange={(e) => handlePassengerChange(index, 'phone', e.target.value)}
-                      required
+                      onChange={(e) =>
+                        handlePassengerChange(index, "phone", e.target.value)
+                      }
+                      className={`mt-1 ${
+                        isDarkMode
+                          ? "bg-gray-700 border-gray-600 text-gray-100"
+                          : "bg-white border-gray-300 text-gray-900"
+                      }`}
                     />
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
 
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button type="submit" className="w-full">Confirm Booking</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Confirm Booking</DialogTitle>
-                  <DialogDescription>
-                    Are you sure you want to proceed? This will redirect you to the Seat selection page
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <Button onClick={bookTicketHandler}>
-                    Proceed
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </form>
-        </CardContent>
-      </Card>
+              <Button
+                type="submit"
+                className={`w-full ${
+                  isDarkMode
+                    ? "bg-sky-600 hover:bg-sky-700 text-white"
+                    : "bg-sky-600 hover:bg-sky-700 text-white"
+                }`}
+              >
+                Book Tickets
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  )
+  );
 }

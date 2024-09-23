@@ -1,36 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  PlaneTakeoff,
-  Filter,
-  ArrowUpDown,
+  Plane,
   Search,
+  Sun,
+  Moon,
   ArrowLeft,
+  PlaneTakeoff,
 } from "lucide-react";
-import { HoverEffect } from "./ui/card-hover-effect";
-import { BackgroundGradient } from "./ui/background-gradient";
+import { Switch } from "@/components/ui/switch";
+import { useRouter } from "next/navigation";
 
-type Flight = {
+interface Flight {
   id: string;
   airline: string;
   source: string;
@@ -39,257 +24,300 @@ type Flight = {
   arrival: string;
   duration: string;
   cost: number;
-};
+}
 
 export function Checkout() {
-  const initialFlights: Flight[] = [
-    {
-      id: "1",
-      airline: "SkyHigh Airlines",
-      source: "New York",
-      destination: "London",
-      departure: "2023-07-01 10:00 AM",
-      arrival: "2023-07-01 10:00 PM",
-      duration: "7h 00m",
-      cost: 500,
-    },
-    {
-      id: "2",
-      airline: "Ocean Air",
-      source: "Los Angeles",
-      destination: "Tokyo",
-      departure: "2023-07-02 11:30 AM",
-      arrival: "2023-07-03 3:30 PM",
-      duration: "11h 00m",
-      cost: 800,
-    },
-    {
-      id: "3",
-      airline: "Mountain Express",
-      source: "Chicago",
-      destination: "Paris",
-      departure: "2023-07-03 9:15 AM",
-      arrival: "2023-07-03 11:45 PM",
-      duration: "8h 30m",
-      cost: 650,
-    },
-    {
-      id: "4",
-      airline: "Desert Jet",
-      source: "Dubai",
-      destination: "Singapore",
-      departure: "2023-07-04 2:00 PM",
-      arrival: "2023-07-05 1:30 AM",
-      duration: "7h 30m",
-      cost: 550,
-    },
-    {
-      id: "5",
-      airline: "Arctic Airways",
-      source: "Moscow",
-      destination: "Beijing",
-      departure: "2023-07-05 6:45 AM",
-      arrival: "2023-07-05 7:15 PM",
-      duration: "6h 30m",
-      cost: 450,
-    },
-  ];
-
-  const [flights, setFlights] = useState<Flight[]>(initialFlights);
   const [source, setSource] = useState("");
   const [destination, setDestination] = useState("");
-  const [filterSource, setFilterSource] = useState("");
-  const [filterDestination, setFilterDestination] = useState("");
-  const [sortBy, setSortBy] = useState("");
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSearched, setIsSearched] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [flights, setFlights] = useState<Flight[]>([]);
 
+  useEffect(() => {
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      setIsDarkMode(true);
+    }
+  }, []);
 
-  const searchFlights = async () => {
+  const popularJourneys = [
+    { source: "New York", destination: "London" },
+    { source: "Tokyo", destination: "Paris" },
+    { source: "Dubai", destination: "Singapore" },
+    { source: "Los Angeles", destination: "Sydney" },
+    { source: "Mumbai", destination: "Bangkok" },
+    { source: "Berlin", destination: "Rome" },
+  ];
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
     const url = `http://localhost:8080/flights/get?source=${source}&destination=${destination}`;
-    setLoading(true);
     try {
       const response = await fetch(url, {
         method: "GET",
         credentials: "include",
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to fetch flights.");
       }
-  
+
       const data = await response.json();
-      console.log("data from server ",data);
+      console.log("data from server ", data);
       setFlights(data);
-      setIsSearched(true)
+      setIsSearched(true);
     } catch (error) {
       console.error("Error:", error);
-    }
-    finally {
-      setLoading(false)
+    } finally {
+      setIsSearched(true);
     }
   };
 
-  const applyFilters = () => {
-    let filteredFlights = initialFlights;
+  const handlePopularJourney = (src: string, dest: string) => {
+    setSource(src);
+    setDestination(dest);
+  };
 
-    if (sortBy === "cost") {
-      filteredFlights.sort((a, b) => a.cost - b.cost);
-    } else if (sortBy === "departure") {
-      filteredFlights.sort((a, b) =>
-        a.departure.localeCompare(b.departure)
-      );
-    }
-
-    setFlights(filteredFlights);
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
   };
 
   const handleBack = () => {
     setIsSearched(false);
-    setFlights(initialFlights);
-    setFilterSource("");
-    setFilterDestination("");
-    setSortBy("");
+    setFlights([]);
+  };
+
+  const router = useRouter();
+
+  const [isBooking, setIsBooking] = useState(false);
+
+  const handleBookNow = async (flight: Flight) => {
+    setIsBooking(true);
+    // Simulating backend call for booking
+    router.push(`/book/${flight.id}`);
+    setIsBooking(false);
   };
 
   return (
-    <div className="min-h-screen bg-zinc-900 p-4">
-      <div className="max-w-7xl mx-auto">
-        <div
-          className={`flex items-center justify-between mb-8 ${
-            isSearched ? "mt-4" : "mt-32"
-          }`}
-        >
-          <div className="flex items-center">
-            <PlaneTakeoff className="h-8 w-8 text-sky-500 mr-2" />
-            <span className="text-2xl font-bold text-sky-500">SkyBooker</span>
-          </div>
-          {isSearched && (
-            <div className="flex space-x-2">
-              <Input
-                placeholder="Source"
-                value={source}
-                onChange={(e) => setSource(e.target.value)}
-                className="w-32"
-              />
-              <Input
-                placeholder="Destination"
-                value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-                className="w-32"
-              />
-              <Button onClick={searchFlights} disabled={loading}>
-                {loading ? "Searching..." : "Search"}
-              </Button>
-              <Button onClick={handleBack} variant="outline">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
-              </Button>
+    <div
+      className={`min-h-screen p-4 sm:p-6 lg:p-8 text-xl ${
+        isDarkMode ? "bg-zinc-900 text-zinc-100" : "bg-zinc-100 text-zinc-900"
+      }`}
+    >
+      <div className="max-w-6xl mx-auto">
+        <header className="text-center mb-8 flex justify-between items-center">
+          <div>
+            <div className="flex items-center">
+              <PlaneTakeoff className="h-10 w-10 text-sky-500 mr-2" />
+              <h1
+                className={`text-5xl font-bold mb-2 ${
+                  isDarkMode ? "text-blue-400" : "text-blue-600"
+                }`}
+              >
+                SkyBooker
+              </h1>
             </div>
-          )}
-        </div>
+            <p className={isDarkMode ? "text-zinc-400 text-lg" : "text-zinc-600 text-lg"}>
+              Find your perfect flight
+            </p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Sun className="h-5 w-5" />
+            <Switch checked={isDarkMode} onCheckedChange={toggleTheme} />
+            <Moon className="h-5 w-5" />
+          </div>
+        </header>
 
         {!isSearched ? (
-          <BackgroundGradient>
-          <Card className="p-6 bg-zinc-800 text-white">
-            <CardContent className="flex flex-col items-center space-y-4">
-              <h2 className="text-2xl font-bold text-sky-500">
-                Find Your Flight
-              </h2>
-              <Input
-                placeholder="Enter source"
-                value={source}
-                onChange={(e) => setSource(e.target.value)}
-                className="w-full max-w-sm"
-              />
-              <Input
-                placeholder="Enter destination"
-                value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-                className="w-full max-w-sm"
-              />
-              <Button
-                onClick={searchFlights}
-                disabled={loading}
-                className="w-full max-w-sm"
+          <>
+            <Card
+              className={`mb-8 text-lg ${
+                isDarkMode
+                  ? "bg-zinc-800 border-zinc-700"
+                  : "bg-white border-zinc-200"
+              }`}
+            >
+              <CardHeader>
+                <CardTitle
+                  className={isDarkMode ? "text-zinc-100" : "text-zinc-900"}
+                >
+                  Search Flights
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form
+                  onSubmit={handleSearch}
+                  className="flex flex-col sm:flex-row gap-4"
+                >
+                  <div className="flex-1">
+                    <Input
+                      type="text"
+                      placeholder="From"
+                      value={source}
+                      onChange={(e) => setSource(e.target.value)}
+                      className={`w-full text-lg ${
+                        isDarkMode
+                          ? "bg-zinc-700 border-zinc-600 text-zinc-100 placeholder-zinc-400"
+                          : "bg-white border-zinc-300 text-zinc-900 placeholder-zinc-500"
+                      }`}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Input
+                      type="text"
+                      placeholder="To"
+                      value={destination}
+                      onChange={(e) => setDestination(e.target.value)}
+                      className={`w-full text-lg ${
+                        isDarkMode
+                          ? "bg-zinc-700 border-zinc-600 text-zinc-100 placeholder-zinc-400"
+                          : "bg-white border-zinc-300 text-zinc-900 placeholder-zinc-500"
+                      }`}
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    className={`w-full sm:w-auto text-lg ${
+                      isDarkMode
+                        ? "bg-blue-600 hover:bg-blue-700 text-white"
+                        : "bg-blue-600 hover:bg-blue-700 text-white"
+                    }`}
+                  >
+                    <Search className="w-5 h-5 mr-2" />
+                    Search Flights
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+
+            <section>
+              <h2
+                className={`text-3xl font-semibold mb-4 ${
+                  isDarkMode ? "text-zinc-200" : "text-zinc-800"
+                }`}
               >
-                {loading ? "Searching..." : "Search Flights"}
+                Popular Journeys
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {popularJourneys.map((journey, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    className={`h-32 py-4 px-6 flex items-center justify-between transition-transform duration-300 transform text-lg ${
+                      isDarkMode
+                        ? "bg-zinc-800 border-zinc-700 hover:bg-zinc-700 text-zinc-200"
+                        : "bg-white border-zinc-300 hover:bg-zinc-100 text-zinc-800"
+                    } hover:scale-105`}
+                    onClick={() =>
+                      handlePopularJourney(journey.source, journey.destination)
+                    }
+                  >
+                    <span className="flex items-center">
+                      <span className="font-medium">{journey.source}</span>
+                      <Plane
+                        className={`w-5 h-5 mx-2 ${
+                          isDarkMode ? "text-blue-400" : "text-blue-600"
+                        }`}
+                      />
+                      <span className="font-medium">{journey.destination}</span>
+                    </span>
+                    <span
+                      className={`text-lg ${
+                        isDarkMode ? "text-zinc-400" : "text-zinc-500"
+                      }`}
+                    >
+                      Select
+                    </span>
+                  </Button>
+                ))}
+              </div>
+            </section>
+          </>
+        ) : (
+          <Card
+            className={`mb-8 text-lg ${
+              isDarkMode
+                ? "bg-zinc-800 border-zinc-700"
+                : "bg-white border-zinc-200"
+            }`}
+          >
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle
+                className={isDarkMode ? "text-zinc-100" : "text-zinc-900"}
+              >
+                Flight Results: {source} to {destination}
+              </CardTitle>
+              <Button
+                variant="outline"
+                onClick={handleBack}
+                className={isDarkMode ? "text-zinc-600" : "text-zinc-800"}
+              >
+                <ArrowLeft className="w-5 h-5 mr-2 " />
+                Back to Search
               </Button>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {flights.map((flight) => (
+                  <Card
+                    key={flight.id}
+                    className={`h-32 transition-transform duration-300 transform hover:scale-105 ${
+                      isDarkMode
+                        ? "bg-zinc-700 border-zinc-600"
+                        : "bg-zinc-50 border-zinc-200"
+                    }`}
+                  >
+                    <CardContent className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4">
+                      <div>
+                        <h3
+                          className={`font-bold text-xl ${
+                            isDarkMode ? "text-zinc-100" : "text-zinc-900"
+                          }`}
+                        >
+                          {flight.airline}
+                        </h3>
+                        <p
+                          className={`text-sm ${
+                            isDarkMode ? "text-zinc-400" : "text-zinc-600"
+                          }`}
+                        >
+                          {flight.departure} - {flight.arrival}
+                        </p>
+                      </div>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                        <p
+                          className={`font-medium text-lg ${
+                            isDarkMode ? "text-zinc-200" : "text-zinc-800"
+                          }`}
+                        >
+                          ${flight.cost}
+                        </p>
+                        <Button
+                          onClick={() => handleBookNow(flight)}
+                          disabled={isBooking}
+                          className={`${
+                            isDarkMode
+                              ? "bg-blue-600 hover:bg-blue-700 text-white"
+                              : "bg-blue-600 hover:bg-blue-700 text-white"
+                          }`}
+                        >
+                          {isBooking ? (
+                            <span>Booking...</span>
+                          ) : (
+                            <span>Book Now</span>
+                          )}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </CardContent>
           </Card>
-          </BackgroundGradient>
-        ) : (
-          <>
-            <div className="flex justify-between mb-4">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline">
-                    <Filter className="mr-2 h-4 w-4" />
-                    Filter
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Filter Flights</DialogTitle>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4 text-white">
-                      <Label
-                        htmlFor="filterSource"
-                        className="text-right text-black"
-                      >
-                        Source
-                      </Label>
-                      <Input
-                        id="filterSource"
-                        value={filterSource}
-                        onChange={(e) => setFilterSource(e.target.value)}
-                        placeholder="Enter source"
-                        className="col-span-3 text-black placeholder-zinc-700 bg-white"
-                      />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4 text-white">
-                      <Label
-                        htmlFor="filterSource"
-                        className="text-right text-black"
-                      >
-                        Destination
-                      </Label>
-                      <Input
-                        id="filterDestination"
-                        value={filterDestination}
-                        onChange={(e) => setFilterDestination(e.target.value)}
-                        placeholder="Enter Destination"
-                        className="col-span-3 text-black placeholder-zinc-700 bg-white"
-                      />
-                    </div>
-                  </div>
-
-                  <Button onClick={applyFilters}>Apply Filters</Button>
-                </DialogContent>
-              </Dialog>
-              <Select onValueChange={setSortBy}>
-                <SelectTrigger className="w-[180px] bg-white text-black">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="cost">Sort by Cost</SelectItem>
-                  <SelectItem value="departure">Sort by Departure</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button onClick={applyFilters}>
-                <ArrowUpDown className="mr-2 h-4 w-4" />
-                Apply Sort
-              </Button>
-            </div>
-
-            <div className="max-w-7xl mx-auto px-4">
-              <HoverEffect flight={flights} />
-            </div>
-          </>
         )}
       </div>
     </div>
   );
 }
-
