@@ -203,12 +203,6 @@ export function ViewTicket() {
                   </Card>
                 ))}
               </div>
-
-              {filteredTickets.length === 0 && (
-                <p className={`text-center mt-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  No upcoming journeys found.
-                </p>
-              )}
             </motion.div>
           ) : (
             <motion.div
