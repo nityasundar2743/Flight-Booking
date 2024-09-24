@@ -37,7 +37,6 @@ export function FlightBook({ flightId }: FlightBookProps) {
   useEffect(() => {
     // Simulating API call to fetch flight details
     const fetchFlightDetails = async (flightId: string) => {
-      setIsLoading(true);
 
       try {
         const url = `http://localhost:8080/flights/${flightId}`;
@@ -57,13 +56,11 @@ export function FlightBook({ flightId }: FlightBookProps) {
         });
       } catch (error) {
         console.error("Error:", error);
-      } finally {
-        setIsLoading(false);
-      }
+      } 
     };
 
     fetchFlightDetails(flightId);
-  },[]);
+  },[flightId]);
 
   useEffect(() => {
     if (

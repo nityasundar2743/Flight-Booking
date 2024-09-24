@@ -1,8 +1,8 @@
 // components/Header.tsx
-"use client"
+"use client";
 import Link from "next/link";
 import { PlaneTakeoff, User } from "lucide-react"; // Assuming you're using Lucide for icons
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 export default function Header() {
@@ -14,19 +14,32 @@ export default function Header() {
         <span className="text-xl font-bold">SkyBooker</span>
       </Link>
       <nav className="ml-auto flex items-center gap-4 sm:gap-6">
-        <Link className="text-sm font-medium hover:underline underline-offset-4" href="/ticket">
+        <Link
+          className="text-sm font-medium hover:underline underline-offset-4"
+          href="/ticket"
+        >
           Upcoming Journey
         </Link>
-        <Link className="text-sm font-medium hover:underline underline-offset-4" href="#">
+        <Link
+          className="text-sm font-medium hover:underline underline-offset-4"
+          href="#"
+        >
           About
         </Link>
-        <Link className="text-sm font-medium hover:underline underline-offset-4" href="#">
+        <Link
+          className="text-sm font-medium hover:underline underline-offset-4"
+          href="#"
+        >
           Contact
         </Link>
-        <Button variant="secondary" size="sm" className="bg-white text-sky-500 hover:bg-sky-100" onClick={()=>{router.push("/auth")}}>
+        <button
+          type="button"
+          className="bg-white text-sky-500 hover:bg-sky-100 px-4 py-2 flex items-center text-sm"
+          onClick={() => router.push("/auth")}
+        >
           <User className="h-4 w-4 mr-2" />
           Login
-        </Button>
+        </button>
       </nav>
     </header>
   );

@@ -14,6 +14,41 @@ interface Passenger {
   phone: string
 }
 
+interface Flight {
+  id: number;
+  airline: string;
+  source: string;
+  destination: string;
+  departure: string;
+  arrival: string;
+  duration: string;
+  cost: number;
+}
+
+
+interface TicketResponse {
+  id: string;
+  flight: Flight;
+  passengers: Passenger[];
+  passengerCount: number;
+}
+
+interface TransformedTicket {
+  confirmationKey: string;
+  airline: string;
+  source: string;
+  destination: string;
+  departure: string;
+  arrival: string;
+  duration: string;
+  cost: number;
+  passengers: {
+    name: string;
+    email: string;
+    phone: string;
+  }[];
+}
+
 interface Ticket {
   confirmationKey: string
   airline: string
@@ -35,47 +70,51 @@ export function ViewTicket() {
 
   useEffect(() => {
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setIsDarkMode(true)
+      setIsDarkMode(true);
     }
-
+  
     // Simulating API call to fetch tickets
     const fetchTickets = async () => {
-      // Replace this with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      setTickets([
-        {
-          confirmationKey: "ABC123",
-          airline: "SkyHigh Airways",
-          source: "New York (JFK)",
-          destination: "London (LHR)",
-          departure: "2024-03-15",
-          arrival: "2024-03-16",
-          duration: "7h 15m",
-          passengers: [
-            { name: "John Doe", email: "john@example.com", phone: "+1234567890" },
-            { name: "Jane Doe", email: "jane@example.com", phone: "+1987654321" }
-          ],
-          cost:20000
-        },
-        {
-          confirmationKey: "DEF456",
-          airline: "Global Airlines",
-          source: "Paris (CDG)",
-          destination: "Tokyo (HND)",
-          departure: "2024-04-02",
-          arrival: "2024-04-03",
-          duration: "12h 15m",
-          passengers: [
-            { name: "Alice Smith", email: "alice@example.com", phone: "+1122334455" }
-          ],
-          cost:20000
-        },
-        // Add more ticket data as needed
-      ])
-    }
-
-    fetchTickets()
-  }, [])
+      try {
+        const url = `http://localhost:8080/ticket/all`;
+  
+        const response = await fetch(url, {
+          method: "GET",
+          credentials: "include",
+        });
+  
+        if (!response.ok) {
+          throw new Error("Failed to fetch flight details.");
+        }
+  
+        const data: TicketResponse[] = await response.json();
+  
+        // Transform and set tickets
+        const transformedTickets: TransformedTicket[] = data.map((ticket: TicketResponse) => ({
+          confirmationKey: ticket.id, // Use the `id` as the confirmation key
+          airline: ticket.flight.airline,
+          source: ticket.flight.source,
+          destination: ticket.flight.destination,
+          departure: ticket.flight.departure,
+          arrival: ticket.flight.arrival,
+          duration: ticket.flight.duration,
+          cost: ticket.flight.cost,
+          passengers: ticket.passengers.map(passenger => ({
+            name: passenger.name,
+            email: passenger.email,
+            phone: passenger.phone,
+          })),
+        }));
+  
+        setTickets(transformedTickets);
+      } catch (error) {
+        console.error("Error fetching tickets:", error);
+      }
+    };
+  
+    fetchTickets();
+  }, []);
+  
 
   useEffect(() => {
     setFilteredTickets(
