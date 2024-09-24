@@ -170,15 +170,7 @@ export function FlightBook({ flightId }: FlightBookProps) {
           }`}
         >
           <CardContent className="py-4">
-            {isLoading ? (
-              <p
-                className={`text-center ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                Loading flight information...
-              </p>
-            ) : flightInfo ? (
+            {flightInfo ? (
               <div className="flex items-center justify-center space-x-4">
                 <span
                   className={`text-lg font-semibold ${
