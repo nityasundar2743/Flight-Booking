@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { PlaneTakeoff, Sun, Moon, ArrowRight } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 interface Passenger {
   name: string;
@@ -25,6 +26,7 @@ interface FlightBookProps {
 }
 
 export function FlightBook({ flightId }: FlightBookProps) {
+  const {toast}=useToast();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [passengerCount, setPassengerCount] = useState(1);
   const [passengers, setPassengers] = useState<Passenger[]>([
@@ -127,6 +129,11 @@ export function FlightBook({ flightId }: FlightBookProps) {
         throw new Error("Failed to save the ticket");
       }
       console.log(response);
+      toast({
+        title: "Get Set Fly",
+        description: "Ticket Booked",
+      });
+      
 
       // After the ticket is successfully saved, navigate to seat selection
       router.push(`/book/seat-select/${flightId}`);

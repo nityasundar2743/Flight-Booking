@@ -9,6 +9,10 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Plane, Cloud, Sun, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useSetRecoilState } from "recoil"
+import { userAtom } from "../atoms"
+import { useToast } from "@/hooks/use-toast"
+
 
 const TabContent = ({ children }: { children: React.ReactNode }) => (
   <div className="w-full overflow-hidden relative h-full rounded-2xl p-8 text-white bg-gradient-to-br from-sky-400 to-indigo-900">
@@ -22,10 +26,11 @@ const TabContent = ({ children }: { children: React.ReactNode }) => (
 )
 
 export function Auth() {
+  const { toast } = useToast();
   const router=useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false)
-
+  const setUserEmail = useSetRecoilState(userAtom);
   const [signupForm, setSignupForm] = useState({
     name: "",
     email: "",
@@ -70,10 +75,11 @@ export function Auth() {
         }),
       })
   
-  
+      const data = await response.json();
       // Check if the request was successful
       if (response.ok) {
         console.log('Signup successful:')
+        setUserEmail(data.email)
         router.push(`/checkout`)
         // Redirect to the dashboard or another page if needed
       } else {
@@ -82,6 +88,10 @@ export function Auth() {
       }
     } catch (error) {
       console.error('Error during signup:', error)
+      toast({
+        title: "Uh-oh! 🚧",
+        description: "Something's broken in the background. We’re on it!",
+      });
     } finally {
       setIsLoading(false)
     }
@@ -103,13 +113,18 @@ export function Auth() {
           password: loginForm.password,
         }),
       })
-  
+      const data = await response.json();
       // Check if the request was successful
       if (response.ok) {
         console.log('Login successful:')
+        setUserEmail(data.email)
         router.push('/checkout')
         // Perform further actions, like redirecting to a dashboard
       } else {
+        toast({
+          title: "Uh-oh! 🚧",
+          description: "Something's broken in the background. We’re on it!",
+        });
         console.error('Login failed:')
         // Handle error message
       }

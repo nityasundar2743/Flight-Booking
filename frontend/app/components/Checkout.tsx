@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 interface Flight {
   id: string;
@@ -27,6 +28,7 @@ interface Flight {
 }
 
 export function Checkout() {
+  const {toast}=useToast();
   const [source, setSource] = useState("");
   const [destination, setDestination] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -69,6 +71,10 @@ export function Checkout() {
       setFlights(data);
       setIsSearched(true);
     } catch (error) {
+      toast({
+        title: "Uh-oh! 🚧",
+        description: "Something's broken in the background. We’re on it!",
+      });
       console.error("Error:", error);
     } finally {
       setIsSearched(true);

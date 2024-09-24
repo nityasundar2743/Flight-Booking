@@ -5,6 +5,7 @@ import com.example.FlightBooking.service.AuthService;
 
 import jakarta.servlet.http.HttpSession;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,34 +23,53 @@ public class AuthController {
 
     // Endpoint for user registration
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody Map<String, Object> requestBody, HttpSession session) {
+    public ResponseEntity<Map<String, String>> registerUser(@RequestBody Map<String, Object> requestBody, HttpSession session) {
         try {
             String name = (String) requestBody.get("name");
             String email = (String) requestBody.get("email");
             String password = (String) requestBody.get("password");
+            
+            // Register user
             User user = authService.registerUser(name, email, password);
             session.setAttribute("loggedInUser", user);
-            return new ResponseEntity<>("User registered successfully.", HttpStatus.CREATED);
+            
+            // Prepare response with email
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "User registered successfully.");
+            response.put("email", user.getEmail());
+            
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }
     }
 
     // Endpoint for user authentication
     @PostMapping("/login")
-    public ResponseEntity<String> authenticateUser(@RequestBody Map<String, Object> requestBody, 
-                                                   HttpSession session) {
-        // Attempt to authenticate the user
+    public ResponseEntity<Map<String, String>> authenticateUser(@RequestBody Map<String, Object> requestBody, 
+                                                                HttpSession session) {
         String email = (String) requestBody.get("email");
         String password = (String) requestBody.get("password");
+
+        // Authenticate user
         User user = authService.authenticateUser(email, password);
         
         if (user != null) {
-            // Store the authenticated user in the session
+            // Store authenticated user in session
             session.setAttribute("loggedInUser", user);
-            return new ResponseEntity<>("User authenticated successfully.", HttpStatus.OK);
+            
+            // Prepare response with email
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "User authenticated successfully.");
+            response.put("email", user.getEmail());
+            
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("Invalid email or password.", HttpStatus.UNAUTHORIZED);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Invalid email or password.");
+            return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
         }
     }
     

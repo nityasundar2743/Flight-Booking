@@ -4,9 +4,24 @@ import Link from "next/link";
 import { PlaneTakeoff, User } from "lucide-react"; // Assuming you're using Lucide for icons
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { userAtom } from "../atoms";
 
 export default function Header() {
   const router = useRouter();
+  const [userEmail,setUserEmail]=useRecoilState(userAtom);
+
+  const handleAuthAction = () => {
+    if (userEmail) {
+      // If logged in, log out
+      setUserEmail(null);
+      router.push("/");
+    } else {
+      // If not logged in, redirect to login page
+      router.push("/auth");
+    }
+  };
+
   return (
     <header className="px-4 lg:px-6 h-16 flex items-center bg-sky-500 text-white">
       <Link className="flex items-center justify-center" href="#">
@@ -33,13 +48,13 @@ export default function Header() {
           Contact
         </Link>
         <button
-          type="button"
-          className="bg-white text-sky-500 hover:bg-sky-100 px-4 py-2 flex items-center text-sm"
-          onClick={() => router.push("/auth")}
-        >
-          <User className="h-4 w-4 mr-2" />
-          Login
-        </button>
+      type="button"
+      className="bg-white text-sky-500 hover:bg-sky-100 px-4 py-2 flex items-center text-sm"
+      onClick={handleAuthAction}
+    >
+      <User className="h-4 w-4 mr-2" />
+      {userEmail ? "Logout" : "Login"}
+    </button>
       </nav>
     </header>
   );
