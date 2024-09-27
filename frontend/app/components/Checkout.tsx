@@ -104,15 +104,43 @@ export function Checkout() {
     setFlights([]);
   };
 
-  const handleSrcDest = (place: string, isSrc:boolean) => {
+  const handleSrcDest = async(place: string, isSrc:boolean) => {
     if(isSrc){
       setSource(place)
     }
     else{
       setDestination(place)
     }
-    console.log(place)
-    console.log(date)
+    const url = `https://skyscanner80.p.rapidapi.com/api/v1/flights/auto-complete?query=${encodeURIComponent(
+      place
+    )}`;
+    const options = {
+      method: "GET",
+      headers: {
+        "x-rapidapi-key": "10ffa9edf6msh1ef2d0c1b4f6438p1fda62jsna14460b93b1d",
+        "x-rapidapi-host": "skyscanner80.p.rapidapi.com",
+      },
+    };
+  
+    try {
+      const response = await fetch(url, options);
+      const result = await response.json();
+  
+      // Extract the suggestionTitle from the response and set the appropriate state
+      const suggestions = result.data.map(
+        (item: any) => item.presentation.suggestionTitle
+      );
+  
+      if (isSrc) {
+        setSourceResults(suggestions); // Set source results
+      } else {
+        setDestResults(suggestions); // Set destination results
+      }
+  
+      console.log("Suggestions: ", suggestions);
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+    }
   }
 
   const router = useRouter();
