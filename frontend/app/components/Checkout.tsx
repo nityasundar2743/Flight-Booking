@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { format } from "date-fns"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Plane,
@@ -11,10 +12,13 @@ import {
   Moon,
   ArrowLeft,
   PlaneTakeoff,
+  CalendarIcon,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 
 interface Flight {
   id: string;
@@ -34,6 +38,11 @@ export function Checkout() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSearched, setIsSearched] = useState(false);
   const [flights, setFlights] = useState<Flight[]>([]);
+  const [date, setDate] = useState<Date>()
+  const [sourceResults, setSourceResults] = useState<string[]>([])
+  const [destResults, setDestResults] = useState<string[]>([])
+
+  
 
   useEffect(() => {
     if (
@@ -95,6 +104,17 @@ export function Checkout() {
     setFlights([]);
   };
 
+  const handleSrcDest = (place: string, isSrc:boolean) => {
+    if(isSrc){
+      setSource(place)
+    }
+    else{
+      setDestination(place)
+    }
+    console.log(place)
+    console.log(date)
+  }
+
   const router = useRouter();
 
   const [isBooking, setIsBooking] = useState(false);
@@ -138,65 +158,87 @@ export function Checkout() {
 
         {!isSearched ? (
           <>
-            <Card
-              className={`mb-8 text-lg ${
-                isDarkMode
-                  ? "bg-zinc-800 border-zinc-700"
-                  : "bg-white border-zinc-200"
-              }`}
-            >
-              <CardHeader>
-                <CardTitle
-                  className={isDarkMode ? "text-zinc-100" : "text-zinc-900"}
-                >
-                  Search Flights
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form
-                  onSubmit={handleSearch}
-                  className="flex flex-col sm:flex-row gap-4"
-                >
-                  <div className="flex-1">
-                    <Input
-                      type="text"
-                      placeholder="From"
-                      value={source}
-                      onChange={(e) => setSource(e.target.value)}
-                      className={`w-full text-lg ${
-                        isDarkMode
-                          ? "bg-zinc-700 border-zinc-600 text-zinc-100 placeholder-zinc-400"
-                          : "bg-white border-zinc-300 text-zinc-900 placeholder-zinc-500"
-                      }`}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <Input
-                      type="text"
-                      placeholder="To"
-                      value={destination}
-                      onChange={(e) => setDestination(e.target.value)}
-                      className={`w-full text-lg ${
-                        isDarkMode
-                          ? "bg-zinc-700 border-zinc-600 text-zinc-100 placeholder-zinc-400"
-                          : "bg-white border-zinc-300 text-zinc-900 placeholder-zinc-500"
-                      }`}
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    className={`w-full sm:w-auto text-lg ${
-                      isDarkMode
-                        ? "bg-blue-600 hover:bg-blue-700 text-white"
-                        : "bg-blue-600 hover:bg-blue-700 text-white"
-                    }`}
-                  >
-                    <Search className="w-5 h-5 mr-2" />
-                    Search Flights
+            <Card className={isDarkMode ? 'bg-gray-800 text-white' : 'bg-white'}>
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">Search Flights</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Input
+                  placeholder="From"
+                  value={source}
+                  onChange={(e) => handleSrcDest(e.target.value, true)}
+                  className={isDarkMode ? 'bg-gray-700 text-white' : ''}
+                />
+                {sourceResults.length > 0 && (
+                  <Card className={`absolute z-10 w-full mt-1 ${isDarkMode ? 'bg-gray-700 text-white' : ''}`}>
+                    <CardContent className="p-0">
+                      {sourceResults.map((result, index) => (
+                        <Button
+                          key={index}
+                          variant="ghost"
+                          className={`w-full justify-start ${isDarkMode ? 'hover:bg-gray-600' : ''}`}
+                          onClick={() => {
+                            setSource(result)
+                            setSourceResults([])
+                          }}
+                        >
+                          {result}
+                        </Button>
+                      ))}
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+              <div className="flex-1 relative">
+                <Input
+                  placeholder="To"
+                  value={destination}
+                  onChange={(e) => handleSrcDest(e.target.value, false)}
+                  className={isDarkMode ? 'bg-gray-700 text-white' : ''}
+                />
+                {destResults.length > 0 && (
+                  <Card className={`absolute z-10 w-full mt-1 ${isDarkMode ? 'bg-gray-700 text-white' : ''}`}>
+                    <CardContent className="p-0">
+                      {destResults.map((result, index) => (
+                        <Button
+                          key={index}
+                          variant="ghost"
+                          className={`w-full justify-start ${isDarkMode ? 'hover:bg-gray-600' : ''}`}
+                          onClick={() => {
+                            setDestination(result)
+                            setDestResults([])
+                          }}
+                        >
+                          {result}
+                        </Button>
+                      ))}
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className={`w-full sm:w-[180px] justify-start text-left font-normal ${!date && "text-muted-foreground"} ${isDarkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : ''}`}>
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date ? format(date, "PPP") : <span>Pick a date</span>}
                   </Button>
-                </form>
-              </CardContent>
-            </Card>
+                </PopoverTrigger>
+                <PopoverContent className={`w-auto p-0 ${isDarkMode ? 'bg-gray-700 text-white' : ''}`}>
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    initialFocus
+                    className={isDarkMode ? 'bg-gray-700 text-white' : ''}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <Button className={`w-full ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : ''}`}>Search Flights</Button>
+          </CardContent>
+        </Card>
 
             <section>
               <h2
