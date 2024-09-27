@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns"
+import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Plane,
@@ -17,7 +17,11 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 
 interface Flight {
@@ -31,18 +35,23 @@ interface Flight {
   cost: number;
 }
 
+interface Place{
+  placeName:string;
+  id:string;
+}
+
 export function Checkout() {
-  const {toast}=useToast();
+  const { toast } = useToast();
   const [source, setSource] = useState("");
   const [destination, setDestination] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSearched, setIsSearched] = useState(false);
   const [flights, setFlights] = useState<Flight[]>([]);
-  const [date, setDate] = useState<Date>()
-  const [sourceResults, setSourceResults] = useState<string[]>([])
-  const [destResults, setDestResults] = useState<string[]>([])
-
-  
+  const [date, setDate] = useState<Date>();
+  const [sourceResults, setSourceResults] = useState<Place[]>([]);
+  const [destResults, setDestResults] = useState<Place[]>([]);
+  const [toId,setToId]=useState("")
+  const [fromId,setFromId]=useState("")
 
   useEffect(() => {
     if (
@@ -62,23 +71,44 @@ export function Checkout() {
     { source: "Berlin", destination: "Rome" },
   ];
 
+
   const handleSearch = async (e: React.FormEvent) => {
+    console.log("from id ",fromId)
+    console.log("to id ",toId)
     e.preventDefault();
-    const url = `http://localhost:8080/flights/get?source=${source}&destination=${destination}`;
+    const url = `https://skyscanner80.p.rapidapi.com/api/v1/flights/search-one-way?fromId=${fromId}&toId=${toId}&departDate=${date?.toISOString().split('T')[0]}`;
+    const options = {
+      method: "GET",
+      headers: {
+        "x-rapidapi-key": "10ffa9edf6msh1ef2d0c1b4f6438p1fda62jsna14460b93b1d",
+        "x-rapidapi-host": "skyscanner80.p.rapidapi.com",
+      },
+    };
+    console.log(url)
     try {
-      const response = await fetch(url, {
-        method: "GET",
-        credentials: "include",
-      });
+      const response = await fetch(url, options);
 
       if (!response.ok) {
         throw new Error("Failed to fetch flights.");
       }
 
       const data = await response.json();
-      console.log("data from server ", data);
-      setFlights(data);
-      setIsSearched(true);
+
+      const parsedFlights: Flight[] = data.data.itineraries.map((itinerary: any) => {
+        const leg = itinerary.legs[0];
+        return {
+          id: itinerary.id,
+          airline: leg.carriers.marketing.map((carrier: any) => carrier.name).join(", "),
+          source: `${leg.origin.name} (${leg.origin.displayCode})`,
+          destination: `${leg.destination.name} (${leg.destination.displayCode})`,
+          departure: leg.departure,
+          arrival: leg.arrival,
+          duration: `${leg.durationInMinutes} minutes`,
+          cost: itinerary.price.raw
+        };
+      });
+
+      setFlights(parsedFlights);
     } catch (error) {
       toast({
         title: "Uh-oh! 🚧",
@@ -104,13 +134,14 @@ export function Checkout() {
     setFlights([]);
   };
 
-  const handleSrcDest = async(place: string, isSrc:boolean) => {
-    if(isSrc){
-      setSource(place)
+  const handleSrcDest = async (place: string, isSrc: boolean) => {
+    if (isSrc) {
+      setSource(place);
+    } else {
+      setDestination(place);
     }
-    else{
-      setDestination(place)
-    }
+    console.log(date)
+
     const url = `https://skyscanner80.p.rapidapi.com/api/v1/flights/auto-complete?query=${encodeURIComponent(
       place
     )}`;
@@ -121,27 +152,30 @@ export function Checkout() {
         "x-rapidapi-host": "skyscanner80.p.rapidapi.com",
       },
     };
-  
+
     try {
       const response = await fetch(url, options);
       const result = await response.json();
-  
+
       // Extract the suggestionTitle from the response and set the appropriate state
-      const suggestions = result.data.map(
-        (item: any) => item.presentation.suggestionTitle
-      );
-  
+      const suggestions = result.data.map((item: any) => ({
+        placeName: item.presentation.suggestionTitle,
+        id: item.id,
+      }));
+
       if (isSrc) {
         setSourceResults(suggestions); // Set source results
       } else {
         setDestResults(suggestions); // Set destination results
       }
-  
+
       console.log("Suggestions: ", suggestions);
+      console.log("Source result: ", sourceResults);
+      console.log("Destination result: ", destResults);
     } catch (error) {
       console.error("Error fetching data: ", error);
     }
-  }
+  };
 
   const router = useRouter();
 
@@ -149,7 +183,6 @@ export function Checkout() {
 
   const handleBookNow = async (flight: Flight) => {
     setIsBooking(true);
-    // Simulating backend call for booking
     router.push(`/book/${flight.id}`);
     setIsBooking(false);
   };
@@ -173,7 +206,11 @@ export function Checkout() {
                 SkyBooker
               </h1>
             </div>
-            <p className={isDarkMode ? "text-zinc-400 text-lg" : "text-zinc-600 text-lg"}>
+            <p
+              className={
+                isDarkMode ? "text-zinc-400 text-lg" : "text-zinc-600 text-lg"
+              }
+            >
               Find your perfect flight
             </p>
           </div>
@@ -186,87 +223,125 @@ export function Checkout() {
 
         {!isSearched ? (
           <>
-            <Card className={isDarkMode ? 'bg-gray-800 text-white' : 'bg-white'}>
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">Search Flights</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Input
-                  placeholder="From"
-                  value={source}
-                  onChange={(e) => handleSrcDest(e.target.value, true)}
-                  className={isDarkMode ? 'bg-gray-700 text-white' : ''}
-                />
-                {sourceResults.length > 0 && (
-                  <Card className={`absolute z-10 w-full mt-1 ${isDarkMode ? 'bg-gray-700 text-white' : ''}`}>
-                    <CardContent className="p-0">
-                      {sourceResults.map((result, index) => (
-                        <Button
-                          key={index}
-                          variant="ghost"
-                          className={`w-full justify-start ${isDarkMode ? 'hover:bg-gray-600' : ''}`}
-                          onClick={() => {
-                            setSource(result)
-                            setSourceResults([])
-                          }}
-                        >
-                          {result}
-                        </Button>
-                      ))}
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-              <div className="flex-1 relative">
-                <Input
-                  placeholder="To"
-                  value={destination}
-                  onChange={(e) => handleSrcDest(e.target.value, false)}
-                  className={isDarkMode ? 'bg-gray-700 text-white' : ''}
-                />
-                {destResults.length > 0 && (
-                  <Card className={`absolute z-10 w-full mt-1 ${isDarkMode ? 'bg-gray-700 text-white' : ''}`}>
-                    <CardContent className="p-0">
-                      {destResults.map((result, index) => (
-                        <Button
-                          key={index}
-                          variant="ghost"
-                          className={`w-full justify-start ${isDarkMode ? 'hover:bg-gray-600' : ''}`}
-                          onClick={() => {
-                            setDestination(result)
-                            setDestResults([])
-                          }}
-                        >
-                          {result}
-                        </Button>
-                      ))}
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className={`w-full sm:w-[180px] justify-start text-left font-normal ${!date && "text-muted-foreground"} ${isDarkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : ''}`}>
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className={`w-auto p-0 ${isDarkMode ? 'bg-gray-700 text-white' : ''}`}>
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    initialFocus
-                    className={isDarkMode ? 'bg-gray-700 text-white' : ''}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            <Button className={`w-full ${isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : ''}`}>Search Flights</Button>
-          </CardContent>
-        </Card>
+            <Card
+              className={isDarkMode ? "bg-gray-800 text-white" : "bg-white"}
+            >
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold">
+                  Search Flights
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-1 relative">
+                    <Input
+                      placeholder="From"
+                      value={source}
+                      onChange={(e) => handleSrcDest(e.target.value, true)}
+                      className={isDarkMode ? "bg-gray-700 text-white" : ""}
+                    />
+                    {sourceResults.length > 0 && (
+                      <Card
+                        className={`absolute z-10 w-full mt-1 ${
+                          isDarkMode ? "bg-gray-700 text-white" : ""
+                        }`}
+                      >
+                        <CardContent className="p-0">
+                          {sourceResults.map((result, index) => (
+                            <Button
+                              key={index}
+                              variant="ghost"
+                              className={`w-full justify-start ${
+                                isDarkMode ? "hover:bg-gray-600" : ""
+                              }`}
+                              onClick={() => {
+                                setSource(result.placeName);
+                                setFromId(result.id)
+                                setSourceResults([]);
+                              }}
+                            >
+                              {result.placeName}
+                            </Button>
+                          ))}
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                  <div className="flex-1 relative">
+                    <Input
+                      placeholder="To"
+                      value={destination}
+                      onChange={(e) => handleSrcDest(e.target.value, false)}
+                      className={isDarkMode ? "bg-gray-700 text-white" : ""}
+                    />
+                    {destResults.length > 0 && (
+                      <Card
+                        className={`absolute z-10 w-full mt-1 ${
+                          isDarkMode ? "bg-gray-700 text-white" : ""
+                        }`}
+                      >
+                        <CardContent className="p-0">
+                          {destResults.map((result, index) => (
+                            <Button
+                              key={index}
+                              variant="ghost"
+                              className={`w-full justify-start ${
+                                isDarkMode ? "hover:bg-gray-600" : ""
+                              }`}
+                              onClick={() => {
+                                setDestination(result.placeName);
+                                setToId(result.id);
+                                setDestResults([]);
+                              }}
+                            >
+                              {result.placeName}
+                            </Button>
+                          ))}
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={`w-full sm:w-[180px] justify-start text-left font-normal ${
+                          !date && "text-muted-foreground"
+                        } ${
+                          isDarkMode
+                            ? "bg-gray-700 text-white hover:bg-gray-600"
+                            : ""
+                        }`}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {date ? format(date, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className={`w-auto p-0 ${
+                        isDarkMode ? "bg-gray-700 text-white" : ""
+                      }`}
+                    >
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={setDate}
+                        initialFocus
+                        className={isDarkMode ? "bg-gray-700 text-white" : ""}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <Button
+                  className={`w-full ${
+                    isDarkMode ? "bg-blue-600 hover:bg-blue-700" : ""
+                  }`}
+                  onClick={handleSearch}
+                >
+                  Search Flights
+                </Button>
+              </CardContent>
+            </Card>
 
             <section>
               <h2
