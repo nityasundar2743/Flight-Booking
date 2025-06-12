@@ -2,7 +2,8 @@
 # Flight-Booking
 
 A full-stack web application for searching, selecting, and booking flights.  
-Built with a Spring Boot + MySQL backend and a Next.js + TypeScript frontend, it integrates with the RapidAPI Flights API to fetch real-time flight data.
+Built with a Spring Boot + MySQL backend and a Next.js + TypeScript frontend,
+it integrates with the RapidAPI Flights API to fetch real-time flight data.
 
 ---
 
