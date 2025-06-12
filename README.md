@@ -28,7 +28,7 @@ it integrates with the RapidAPI Flights API to fetch real-time flight data.
 
 ## Features
 
-- **Search flights** by origin, destination, and date  
+- *Search flights* by origin, destination, and date  
 - **Browse available seats**, view fare classes  
 - **Book tickets** and save reservations in your account  
 - **User authentication** (sign up / sign in)  
