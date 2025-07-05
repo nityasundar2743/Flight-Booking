@@ -19,7 +19,7 @@ public class Ticket {
     @JoinColumn(name = "user_id", nullable = false)
     @JsonProperty("user")
     @JsonIgnore
-    private User user;
+    private Users user;
 
     @ManyToOne
     @JoinColumn(name = "flight_id", referencedColumnName = "id")
@@ -64,11 +64,11 @@ public class Ticket {
         this.id = id;
     }
 
-    public User getUser() {
+    public Users getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(Users user) {
         this.user = user;
     }
 

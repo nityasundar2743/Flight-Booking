@@ -1,7 +1,7 @@
 package com.example.FlightBooking.service;
 
 import com.example.FlightBooking.entity.Ticket;
-import com.example.FlightBooking.entity.User;
+import com.example.FlightBooking.entity.Users;
 import com.example.FlightBooking.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,7 +35,7 @@ public class TicketService {
     }
     
     // Retrieve all tickets for a user
-    public List<Ticket> getTickets(User user) {
+    public List<Ticket> getTickets(Users user) {
         return ticketRepository.findAllByUser(user);
     }
 

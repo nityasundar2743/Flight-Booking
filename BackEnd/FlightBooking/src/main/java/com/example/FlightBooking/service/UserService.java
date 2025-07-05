@@ -1,6 +1,6 @@
 package com.example.FlightBooking.service;
 
-import com.example.FlightBooking.entity.User;
+import com.example.FlightBooking.entity.Users;
 import com.example.FlightBooking.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,15 +13,15 @@ public class UserService {
 	@Autowired
     private UserRepository userRepository;
 
-    public User saveUser(User user) {
+    public Users saveUser(Users user) {
         return userRepository.save(user);
     }
 
-    public Optional<User> getUserByEmail(String email) {
+    public Optional<Users> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    public List<User> getAllUsers() {
+    public List<Users> getAllUsers() {
         return userRepository.findAll();
     }
 }

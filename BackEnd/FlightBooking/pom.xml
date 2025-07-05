@@ -47,10 +47,11 @@
 		    <version>3.3.3</version>
 		</dependency>
 		<dependency>
-		    <groupId>mysql</groupId>
-		    <artifactId>mysql-connector-java</artifactId>
-		    <version>8.0.33</version>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.7.3</version> <!-- Or latest version -->
 		</dependency>
+
 		<!-- Spring Security OAuth2 Client -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

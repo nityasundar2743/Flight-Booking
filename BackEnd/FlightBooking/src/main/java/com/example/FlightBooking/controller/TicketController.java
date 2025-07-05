@@ -5,7 +5,7 @@ import com.example.FlightBooking.dto.PassengerDTO;
 import com.example.FlightBooking.entity.Flight;
 import com.example.FlightBooking.entity.Passenger;
 import com.example.FlightBooking.entity.Ticket;
-import com.example.FlightBooking.entity.User;
+import com.example.FlightBooking.entity.Users;
 import com.example.FlightBooking.service.FlightService;
 import com.example.FlightBooking.service.TicketService;
 
@@ -45,7 +45,7 @@ public class TicketController {
         }
 
         // Retrieve the logged-in user from the session
-        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        Users loggedInUser = (Users) session.getAttribute("loggedInUser");
         if (loggedInUser == null) {
             return new ResponseEntity<>("User not logged in.", HttpStatus.UNAUTHORIZED);
         }
@@ -70,7 +70,7 @@ public class TicketController {
     // Endpoint to retrieve a ticket by confirmation ID
     @GetMapping("/{confirmationID}")
     public ResponseEntity<Ticket> getTicketById(@PathVariable String confirmationID, HttpSession session) {
-        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        Users loggedInUser = (Users) session.getAttribute("loggedInUser");
         if (loggedInUser == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -86,7 +86,7 @@ public class TicketController {
     // Endpoint to retrieve all tickets
     @GetMapping("/all")
     public ResponseEntity<List<Ticket>> getTickets(HttpSession session) {
-        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        Users loggedInUser = (Users) session.getAttribute("loggedInUser");
         if (loggedInUser == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }

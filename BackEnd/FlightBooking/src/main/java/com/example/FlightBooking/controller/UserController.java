@@ -1,6 +1,6 @@
 package com.example.FlightBooking.controller;
 
-import com.example.FlightBooking.entity.User;
+import com.example.FlightBooking.entity.Users;
 import com.example.FlightBooking.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,15 +20,15 @@ public class UserController {
 
     // Endpoint to create or update a user
     @PostMapping("/save")
-    public ResponseEntity<String> saveUser(@RequestBody User user) {
+    public ResponseEntity<String> saveUser(@RequestBody Users user) {
         userService.saveUser(user);
         return new ResponseEntity<>("User saved successfully.", HttpStatus.CREATED);
     }
 
     // Endpoint to retrieve a user by email
     @GetMapping("/{email}")
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
-        Optional<User> userOpt = userService.getUserByEmail(email);
+    public ResponseEntity<Users> getUserByEmail(@PathVariable String email) {
+        Optional<Users> userOpt = userService.getUserByEmail(email);
         if (userOpt.isPresent()) {
             return new ResponseEntity<>(userOpt.get(), HttpStatus.OK);
         } else {
@@ -38,8 +38,8 @@ public class UserController {
 
     // Endpoint to retrieve all users
     @GetMapping("/all")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
+    public ResponseEntity<List<Users>> getAllUsers() {
+        List<Users> users = userService.getAllUsers();
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 }

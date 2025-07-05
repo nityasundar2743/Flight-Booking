@@ -5,8 +5,8 @@ import java.util.List;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "user")
-public class User implements Serializable{
+@Table(name = "users")
+public class Users implements Serializable{
     
     /**
 	 * 
@@ -30,9 +30,9 @@ public class User implements Serializable{
     private List<Ticket> tickets;
 
     // Constructors
-    public User() {}
+    public Users() {}
 
-    public User(String name, String email, String password, List<Ticket> tickets) {
+    public Users(String name, String email, String password, List<Ticket> tickets) {
         this.name = name;
         this.email = email;
         this.password = password;

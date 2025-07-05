@@ -1,6 +1,6 @@
 package com.example.FlightBooking.controller;
 
-import com.example.FlightBooking.entity.User;
+import com.example.FlightBooking.entity.Users;
 import com.example.FlightBooking.service.AuthService;
 
 import jakarta.servlet.http.HttpSession;
@@ -30,7 +30,7 @@ public class AuthController {
             String password = (String) requestBody.get("password");
             
             // Register user
-            User user = authService.registerUser(name, email, password);
+            Users user = authService.registerUser(name, email, password);
             session.setAttribute("loggedInUser", user);
             
             // Prepare response with email
@@ -54,7 +54,7 @@ public class AuthController {
         String password = (String) requestBody.get("password");
 
         // Authenticate user
-        User user = authService.authenticateUser(email, password);
+        Users user = authService.authenticateUser(email, password);
         
         if (user != null) {
             // Store authenticated user in session
@@ -75,7 +75,7 @@ public class AuthController {
     
     @GetMapping("/logout")
     public ResponseEntity<String> logoutUser(HttpSession session){
-    	User user = (User) session.getAttribute("loggedInUser");
+    	Users user = (Users) session.getAttribute("loggedInUser");
         
         if (user != null) {
             // Store the authenticated user in the session

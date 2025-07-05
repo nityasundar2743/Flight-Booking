@@ -1,6 +1,6 @@
 package com.example.FlightBooking.service;
 
-import com.example.FlightBooking.entity.User;
+import com.example.FlightBooking.entity.Users;
 import com.example.FlightBooking.repository.UserRepository;
 
 import jakarta.servlet.http.HttpSession;
@@ -19,21 +19,21 @@ public class AuthService {
 
 
     // Register a new user
-    public User registerUser(String name, String email, String password) {
+    public Users registerUser(String name, String email, String password) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new RuntimeException("User with this email already exists.");
         }
         String hashedPassword = password;
-        User user = new User(name, email, hashedPassword, null);
+        Users user = new Users(name, email, hashedPassword, null);
         return userRepository.save(user);
     }
 
     // Authenticate a user and return the User object if successful
-    public User authenticateUser(String email, String password) {
-        Optional<User> userOpt = userRepository.findByEmail(email);
+    public Users authenticateUser(String email, String password) {
+        Optional<Users> userOpt = userRepository.findByEmail(email);
         System.out.println(userOpt.get().getName());
         if (userOpt.isPresent()) {
-            User user = userOpt.get();
+            Users user = userOpt.get();
             if (password.equals(user.getPassword())) {
                 return user;  // Return the authenticated user
             }
